@@ -14,6 +14,8 @@ import Constants from "expo-constants";
 import * as SQLite from 'expo-sqlite';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import axios from "axios";
+import { format } from 'react-string-format';
 
 const db = SQLite.openDatabase("db.db");
 
@@ -49,8 +51,8 @@ class Items extends React.Component {
                         }}
                     >
                         <View style={styles.itemContainer}>
-                            <Text style={{ color: synced ? "#fff" : "#000", flex:1 }}>{barcode}</Text>
-                            <Text style={{ color: synced ? "#fff" : "#000", alignItems:'flex-end', flex:1, textAlign:'right' }}>{quantity}</Text>
+                            <Text style={{ color: synced ? "#fff" : "#000", flex: 1 }}>{barcode}</Text>
+                            <Text style={{ color: synced ? "#fff" : "#000", alignItems: 'flex-end', flex: 1, textAlign: 'right' }}>{quantity}</Text>
                         </View>
 
                     </TouchableOpacity>
@@ -72,9 +74,9 @@ class Items extends React.Component {
 
 const utilizeFocus = () => {
     const ref = React.createRef()
-    const setFocus = () => {ref.current &&  ref.current.focus()}
+    const setFocus = () => { ref.current && ref.current.focus() }
 
-    return {setFocus, ref} 
+    return { setFocus, ref }
 }
 
 export class StockDbList extends React.Component {
@@ -101,7 +103,7 @@ export class StockDbList extends React.Component {
     }
 
     render() {
-       
+
         return (
             <View style={styles.container}>
                 <View style={styles.editPart}>
@@ -114,7 +116,7 @@ export class StockDbList extends React.Component {
                             style={styles.input}
                             value={this.state.barcode}
                             ref={this.input1Focus.ref}
-                            onSubmitEditing={()=> this.input2Focus.setFocus()}
+                            onSubmitEditing={() => this.input2Focus.setFocus()}
                         />
                         <TextInput
                             onChangeText={qty => this.setState({ quantity: qty })}
@@ -126,10 +128,11 @@ export class StockDbList extends React.Component {
                         <View style={styles.buttonAdd}>
                             <FontAwesome.Button name="long-arrow-right" backgroundColor="#3b5998" onPress={() => {
                                 this.add(this.state.barcode, this.state.quantity);
-                                this.input1Focus.setFocus() ;
-                                this.setState({barcode:'',quantity:''});
+                                this.pushData(this.state.barcode, this.state.quantity);
+                                this.input1Focus.setFocus();
+                                this.setState({ barcode: '', quantity: '' });
                             }} >
-                               Add For Stock Taking
+                                Add For Stock Taking
                             </FontAwesome.Button>
 
 
@@ -168,11 +171,42 @@ export class StockDbList extends React.Component {
                         }
                     />
                 </ScrollView>
+
+                <View style={styles.buttonAdd}>
+                    <FontAwesome.Button name="registered" backgroundColor="green" onPress={() => {
+                        this.pushData(this.state.barcode, this.state.quantity);
+                        this.input1Focus.setFocus();
+                        this.setState({ barcode: '', quantity: '' });
+                    }} >
+                        Sync Data
+                    </FontAwesome.Button>
+
+
+                </View>
             </View>
         );
     }
 
-
+pushData(barcode:string,quantity:string){
+    const url =format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid=17&barcode={0}&quantity={1}",barcode,quantity);
+    axios.get(url)
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+    // axios.post('/user', {
+    //     firstName: 'Fred',
+    //     lastName: 'Flintstone'
+    //   })
+    //   .then(function (response) {
+    //     console.log(response);
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
+}
 
 
     add(barcode: string, quantity: string) {
@@ -267,6 +301,6 @@ const styles = StyleSheet.create({
     itemContainer: {
         flex: 2,
         flexDirection: 'row',
-        alignItems:'stretch',
+        alignItems: 'stretch',
     }
 });
