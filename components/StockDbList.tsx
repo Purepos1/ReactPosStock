@@ -108,7 +108,7 @@ export class StockDbList extends React.Component {
             <View style={styles.container}>
                 <View style={styles.editPart}>
 
-                    <Image source={require('../assets/images/PosManagerLogo.jpg')} style={styles.image} />
+                    
                     <View style={styles.flexRow}>
                         <TextInput
                             onChangeText={text => this.setState({ barcode: text })}
@@ -134,8 +134,6 @@ export class StockDbList extends React.Component {
                             }} >
                                 Add For Stock Taking
                             </FontAwesome.Button>
-
-
                         </View>
                     </View>
 
@@ -236,8 +234,8 @@ pushData(barcode:string,quantity:string){
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
-        flex: 1,
-        paddingTop: Constants.statusBarHeight
+        flex: 9,
+        paddingTop: Constants.statusBarHeight-15
     },
     editPart: {
         backgroundColor: 'white',
