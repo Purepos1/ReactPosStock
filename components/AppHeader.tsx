@@ -2,12 +2,23 @@ import { View, Image, StyleSheet, Text } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from "react";
 
-export function LoginButton(props:any) {
+export function LoginButton(props: any) {
     return (
         <FontAwesome.Button name="sign-in" backgroundColor="#fd7e14" onPress={() =>
-            props.navigation.navigate('Login', { name: 'Jane' })
-          }  >
+            props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
+        }  >
             Login
+        </FontAwesome.Button>
+    );
+}
+
+export function LogoutButton(props: any) {
+    const [loginName, setLoginName] = useState('');
+    return (
+        <FontAwesome.Button name="sign-out" backgroundColor="#adb5bd" onPress={() =>
+            props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
+        }  >
+           <Text> {props.name}</Text>
         </FontAwesome.Button>
     );
 }
@@ -21,8 +32,13 @@ export function UserName() {
         </View>
     );
 }
-export function AppHeader(props:any) {
+export function AppHeader(props: any) {
     const [isLogin, setIsLogin] = useState(false);
+    const [loginName, setLoginName] = useState('');
+    const onLoggedIn = (name: string) => {
+        setIsLogin(true);
+        setLoginName(name)
+    }
     return (
         <View style={styles.container}>
             <View style={{ flex: 3 }}>
@@ -30,7 +46,8 @@ export function AppHeader(props:any) {
 
             </View>
             <View style={styles.icon}>
-                {isLogin == false ? <LoginButton navigation={props.component} /> : <UserName />}
+                {isLogin == false ? <LoginButton navigation={props.component} loggedIn={onLoggedIn} /> :
+                    <LogoutButton navigation={props.component} loggedIn={onLoggedIn} name={loginName} />}
 
             </View>
         </View>

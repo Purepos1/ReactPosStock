@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Keyboard } from 'react-native'
 
 
 export function Login(props: any) {
@@ -10,6 +11,7 @@ export function Login(props: any) {
     const [id, setId] = useState('');
     const [userName, setUserName] = useState('');
     const [pass, setPass] = useState('');
+    const [hideCam, setHideCam] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -36,14 +38,23 @@ export function Login(props: any) {
         return <Text>No access to camera</Text>;
     }
 
+    const focused = () => {
+        setHideCam(true);
+
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Use QR code for fastly enterence.</Text>
-            {!scanned && <BarCodeScanner
+            {!hideCam && <BarCodeScanner
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 style={styles.camera}
             />}
             {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+            {hideCam && <Button title={'Tap to Open Cam Again'} onPress={() => {
+                setHideCam(false);
+                Keyboard.dismiss();
+            }} />}
 
             <View style={styles.searchSection}>
                 <FontAwesome name="key" style={styles.searchIcon} />
@@ -53,6 +64,7 @@ export function Login(props: any) {
                     value={id}
                     onChangeText={(searchString) => { setId({ searchString }) }}
                     underlineColorAndroid="transparent"
+                    onFocus={focused}
                 />
             </View>
 
@@ -82,6 +94,7 @@ export function Login(props: any) {
             <View >
                 <FontAwesome.Button name="sign-in" backgroundColor="#fd7e14" onPress={() => {
                     //    navigate('Login', { go_back_key: state.key });
+                    props.route.params.loggedIn(userName);
                     props.navigation.goBack();
                 }} >
                     Login

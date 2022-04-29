@@ -108,7 +108,7 @@ export class StockDbList extends React.Component {
             <View style={styles.container}>
                 <View style={styles.editPart}>
 
-                    
+
                     <View style={styles.flexRow}>
                         <TextInput
                             onChangeText={text => this.setState({ barcode: text })}
@@ -185,26 +185,26 @@ export class StockDbList extends React.Component {
         );
     }
 
-pushData(barcode:string,quantity:string){
-    const url =format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid=17&barcode={0}&quantity={1}",barcode,quantity);
-    axios.get(url)
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-    // axios.post('/user', {
-    //     firstName: 'Fred',
-    //     lastName: 'Flintstone'
-    //   })
-    //   .then(function (response) {
-    //     console.log(response);
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
-}
+    pushData(barcode: string, quantity: string) {
+        const url = format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid=17&barcode={0}&quantity={1}", barcode, quantity);
+        axios.get(url)
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        // axios.post('/user', {
+        //     firstName: 'Fred',
+        //     lastName: 'Flintstone'
+        //   })
+        //   .then(function (response) {
+        //     console.log(response);
+        //   })
+        //   .catch(function (error) {
+        //     console.log(error);
+        //   });
+    }
 
 
     add(barcode: string, quantity: string) {
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         flex: 9,
-        paddingTop: Constants.statusBarHeight-15
+        paddingTop: Constants.statusBarHeight - 15
     },
     editPart: {
         backgroundColor: 'white',
