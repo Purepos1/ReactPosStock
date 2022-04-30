@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     Touchable,
     Image,
-    Button
+    Button,
+    ToastAndroid
 } from "react-native";
 import Constants from "expo-constants";
 import * as SQLite from 'expo-sqlite';
@@ -42,17 +43,16 @@ class Items extends React.Component {
                 {items.map(({ id, barcode, quantity, synced }) => (
                     <TouchableOpacity
                         key={id}
-                        onPress={() => this.props.onPressItem && this.props.onPressItem(id)}
+                        onLongPress={() => this.props.onPressItem && this.props.onPressItem(id)}
                         style={{
-                            backgroundColor: synced ? "#1c9963" : "#fff",
-                            borderColor: "gray",
+                            borderColor: "lightgray",
                             borderBottomWidth: 1,
                             padding: 8
                         }}
                     >
                         <View style={styles.itemContainer}>
-                            <Text style={{ color: synced ? "#fff" : "#000", flex: 1 }}>{barcode}</Text>
-                            <Text style={{ color: synced ? "#fff" : "#000", alignItems: 'flex-end', flex: 1, textAlign: 'right' }}>{quantity}</Text>
+                            <Text style={{ flex: 1 }}>{barcode}</Text>
+                            <Text style={{ alignItems: 'flex-end', flex: 1, textAlign: 'right' }}>{quantity}</Text>
                         </View>
 
                     </TouchableOpacity>
@@ -64,8 +64,8 @@ class Items extends React.Component {
     update() {
         db.transaction(tx => {
             tx.executeSql(
-                `select * from items where synced = ?;`,
-                [this.props.synced ? 1 : 0],
+                `select * from items;`,
+                [],
                 (_, { rows: { _array } }) => this.setState({ items: _array })
             );
         });
@@ -92,7 +92,6 @@ export class StockDbList extends React.Component {
         this.input2Focus = utilizeFocus()
     }
 
-
     componentDidMount() {
         db.transaction(tx => {
             tx.executeSql(
@@ -102,13 +101,17 @@ export class StockDbList extends React.Component {
         this.input1Focus.setFocus();
     }
 
-    render() {
+    submitItem() {
+        this.add(this.state.barcode, this.state.quantity);
+        // this.pushData(this.state.barcode, this.state.quantity);
+        this.input1Focus.setFocus();
+        this.setState({ barcode: '', quantity: '' });
+    }
 
+    render() {
         return (
             <View style={styles.container}>
                 <View style={styles.editPart}>
-
-
                     <View style={styles.flexRow}>
                         <TextInput
                             onChangeText={text => this.setState({ barcode: text })}
@@ -122,16 +125,14 @@ export class StockDbList extends React.Component {
                             onChangeText={qty => this.setState({ quantity: qty })}
                             placeholder="Enter Quantity"
                             style={styles.input}
+                            keyboardType="numeric"
                             value={this.state.quantity}
                             ref={this.input2Focus.ref}
+                            onSubmitEditing={() => this.submitItem()}
                         />
                         <View style={styles.buttonAdd}>
-                            <FontAwesome.Button name="long-arrow-right" backgroundColor="#3b5998" onPress={() => {
-                                this.add(this.state.barcode, this.state.quantity);
-                                this.pushData(this.state.barcode, this.state.quantity);
-                                this.input1Focus.setFocus();
-                                this.setState({ barcode: '', quantity: '' });
-                            }} >
+                            <FontAwesome.Button name="long-arrow-right" backgroundColor="#3b5998"
+                                onPress={() => this.submitItem()} >
                                 Add For Stock Taking
                             </FontAwesome.Button>
                         </View>
@@ -141,12 +142,11 @@ export class StockDbList extends React.Component {
 
                 <ScrollView style={styles.listArea}>
                     <Items
-                        synced={false}
-                        ref={todo => (this.todo = todo)}
+                        ref={itms => (this.itms = itms)}
                         onPressItem={id =>
                             db.transaction(
                                 tx => {
-                                    tx.executeSql(`update items set synced = 1 where id = ?;`, [
+                                    tx.executeSql(`delete from items where id = ?;`, [
                                         id
                                     ]);
                                 },
@@ -155,55 +155,40 @@ export class StockDbList extends React.Component {
                             )
                         }
                     />
-                    <Items
-                        synced={true}
-                        ref={done => (this.done = done)}
-                        onPressItem={id =>
-                            db.transaction(
-                                tx => {
-                                    tx.executeSql(`delete from items where id = ?;`, [id]);
-                                },
-                                null,
-                                this.update
-                            )
-                        }
-                    />
+
                 </ScrollView>
 
-                <View style={styles.buttonAdd}>
-                    <FontAwesome.Button name="registered" backgroundColor="green" onPress={() => {
-                        this.pushData(this.state.barcode, this.state.quantity);
+                <View style={{ borderRadius: 0 }} >
+                    <FontAwesome.Button borderRadius={0} style={{ alignSelf: 'center' }} name="cloud-upload" backgroundColor="#4D77FF" onPress={() => {
+                        this.syncData();
                         this.input1Focus.setFocus();
                         this.setState({ barcode: '', quantity: '' });
                     }} >
                         Sync Data
                     </FontAwesome.Button>
-
-
                 </View>
             </View>
         );
     }
 
-    pushData(barcode: string, quantity: string) {
-        const url = format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid=17&barcode={0}&quantity={1}", barcode, quantity);
+     pushData(data:any,synced:any) {
+        const url = format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid=17&barcode={0}&quantity={1}", data.barcode, data.quantity);
         axios.get(url)
             .then(function (response) {
                 console.log(response);
+
+                db.transaction(
+                    tx => {
+                        tx.executeSql(`delete from items where id = ?;`, [data.id]);
+                    },
+                    null,
+                    synced
+                )
+
             })
             .catch(function (error) {
-                console.log(error);
+                console.log("Hilmi error :"+error);
             });
-        // axios.post('/user', {
-        //     firstName: 'Fred',
-        //     lastName: 'Flintstone'
-        //   })
-        //   .then(function (response) {
-        //     console.log(response);
-        //   })
-        //   .catch(function (error) {
-        //     console.log(error);
-        //   });
     }
 
 
@@ -225,10 +210,31 @@ export class StockDbList extends React.Component {
         );
     }
 
+    synced = () =>{
+        this.update();
+        ToastAndroid.show('Data(s) are send to PurePOS system.', ToastAndroid.LONG);
+        
+    }
+
     update = () => {
-        this.todo && this.todo.update();
-        this.done && this.done.update();
+        this.itms && this.itms.update();
     };
+
+    syncData() {
+        db.transaction(
+            tx => {
+                tx.executeSql("select * from items", [], (_, { rows }) => {
+
+                    for (let i = 0; i < rows._array.length; i++) {
+                        let itm = rows._array[i];
+                        this.pushData(itm,this.synced);
+                    }
+
+                });
+            },
+            null,
+        );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -276,7 +282,7 @@ const styles = StyleSheet.create({
         padding: 8
     },
     listArea: {
-        backgroundColor: "#f0f0f0",
+        backgroundColor: "white",
         flex: 1,
         paddingTop: 16,
         marginTop: 16,

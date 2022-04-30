@@ -3,6 +3,30 @@ import { Text, View, StyleSheet, Button, TextInput } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Keyboard } from 'react-native'
+import * as SQLite from 'expo-sqlite';
+
+const db = SQLite.openDatabase("db.db");
+
+function add(userName: string, password: string, customerId: number) {
+    // is text empty?
+    if (userName === null || userName === "" ||
+        password === null || password === "" ||
+        customerId === null || customerId === 0) {
+        return false;
+    }
+
+    db.transaction(
+        tx => {
+            tx.executeSql("delete from user");
+            tx.executeSql("insert into user (userName,password,customerId) values (?, ?,?)", [userName, password, customerId]);
+            tx.executeSql("select * from user", [], (_, { rows }) =>
+                console.log(JSON.stringify(rows))
+            );
+        },
+        null,
+        
+    );
+}
 
 
 export function Login(props: any) {
@@ -14,11 +38,23 @@ export function Login(props: any) {
     const [hideCam, setHideCam] = useState(false);
 
     useEffect(() => {
+        setId('');
+        setUserName('');
+        setPass('');
         (async () => {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
+        db.transaction(tx => {
+            tx.executeSql(
+                "create table if not exists user (id integer primary key not null,userName text, password text,customerId int);"
+            );
+            tx.executeSql("delete from user");
+        });
+
     }, []);
+
+
 
     const handleBarCodeScanned = ({ type, data }) => {
         setScanned(true);
@@ -93,17 +129,13 @@ export function Login(props: any) {
 
             <View >
                 <FontAwesome.Button name="sign-in" backgroundColor="#fd7e14" onPress={() => {
-                    //    navigate('Login', { go_back_key: state.key });
+                    add(userName, pass, parseInt(id));
                     props.route.params.loggedIn(userName);
                     props.navigation.goBack();
                 }} >
                     Login
                 </FontAwesome.Button>
             </View>
-
-            {/* {scanned && <Text style={styles.text}>Your Id: {id}</Text>}
-            {scanned && <Text style={styles.text}>User Name: {userName}</Text>}
-            {scanned && <Text style={styles.text}>Password: {pass}</Text>} */}
         </View>
     );
 }

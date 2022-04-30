@@ -1,6 +1,9 @@
 import { View, Image, StyleSheet, Text } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from "react";
+import * as SQLite from 'expo-sqlite';
+
+const db = SQLite.openDatabase("db.db");
 
 export function LoginButton(props: any) {
     return (
@@ -17,8 +20,8 @@ export function LogoutButton(props: any) {
     return (
         <FontAwesome.Button name="sign-out" backgroundColor="#adb5bd" onPress={() =>
             props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
-        }  >
-           <Text> {props.name}</Text>
+        }>
+            <Text> {props.name}</Text>
         </FontAwesome.Button>
     );
 }
@@ -39,6 +42,24 @@ export function AppHeader(props: any) {
         setIsLogin(true);
         setLoginName(name)
     }
+
+    db.transaction(
+        tx => {
+            tx.executeSql("select * from user", [], (_, { rows }) => {
+
+                if (rows._array.length > 0) {
+                    console.log(JSON.stringify(rows));
+                    console.log(rows._array[0].id);
+                    setIsLogin(true);
+                    setLoginName(rows._array[0].userName);
+                }
+            });
+        },
+        null,
+
+    );
+
+
     return (
         <View style={styles.container}>
             <View style={{ flex: 3 }}>
