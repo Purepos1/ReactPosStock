@@ -13,10 +13,12 @@ import {
 } from "react-native";
 import Constants from "expo-constants";
 import * as SQLite from 'expo-sqlite';
-
+import { useState } from "react";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from "axios";
 import { format } from 'react-string-format';
+import { Alert } from "react-native";
+import { SyncModal } from "./SyncModal";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -84,6 +86,26 @@ export class StockDbList extends React.Component {
         barcode: '',
         quantity: '',
         onSubmit: null,
+        customerId: 0,
+        modalVisible:false,
+        refNumber:''
+    };
+
+    hideModal =()=>{this.setState({modalVisible:false})};
+
+    startSync = (ref:string) => {
+
+        if(ref =='')
+        {
+            alert("Please enter reference number");
+        } else  {
+            this.setState({modalVisible:false});
+            this.setState({refNumber:ref});
+            console.log(ref);
+             this.syncData(this.state.customerId);
+             this.input1Focus.setFocus();
+             this.setState({ barcode: '', quantity: '' });
+        }
     };
 
     constructor(props: any) {
@@ -99,6 +121,7 @@ export class StockDbList extends React.Component {
             );
         });
         this.input1Focus.setFocus();
+        this.loadUser();
     }
 
     submitItem() {
@@ -107,6 +130,24 @@ export class StockDbList extends React.Component {
         this.input1Focus.setFocus();
         this.setState({ barcode: '', quantity: '' });
     }
+
+    loadUser() {
+        console.log("Load user Called");
+        db.transaction(
+            tx => {
+                tx.executeSql("select * from user", [], (_, { rows }) => {
+
+                    if (rows._array.length > 0) {
+                        console.log(JSON.stringify(rows));
+                        console.log(rows._array[0].id);
+                        this.setState({ customerId: rows._array[0].customerId });
+                    }
+                });
+            },
+            null,
+
+        )
+    };
 
     render() {
         return (
@@ -160,19 +201,22 @@ export class StockDbList extends React.Component {
 
                 <View style={{ borderRadius: 0 }} >
                     <FontAwesome.Button borderRadius={0} style={{ alignSelf: 'center' }} name="cloud-upload" backgroundColor="#4D77FF" onPress={() => {
-                        this.syncData();
-                        this.input1Focus.setFocus();
-                        this.setState({ barcode: '', quantity: '' });
+                       this.setState({modalVisible:true});
+                       
                     }} >
                         Sync Data
                     </FontAwesome.Button>
                 </View>
+
+                {this.state.modalVisible && <SyncModal onDoneFunction={this.startSync} onCancel={this.hideModal} isvisible={this.state.modalVisible} />}
+
             </View>
         );
     }
 
-     pushData(data:any,synced:any) {
-        const url = format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid=17&barcode={0}&quantity={1}", data.barcode, data.quantity);
+    pushData(data: any, synced: any) {
+        const url = format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}",
+         data.barcode, data.quantity,this.state.refNumber,this.state.customerId);
         axios.get(url)
             .then(function (response) {
                 console.log(response);
@@ -187,7 +231,7 @@ export class StockDbList extends React.Component {
 
             })
             .catch(function (error) {
-                console.log("Hilmi error :"+error);
+                console.log("Hilmi error :" + error.response.data);
             });
     }
 
@@ -210,30 +254,41 @@ export class StockDbList extends React.Component {
         );
     }
 
-    synced = () =>{
+    synced = () => {
         this.update();
         ToastAndroid.show('Data(s) are send to PurePOS system.', ToastAndroid.LONG);
-        
+
     }
 
     update = () => {
         this.itms && this.itms.update();
     };
 
-    syncData() {
+    syncData(customerId:any) {
+
+        if(customerId ==0)
+        {
+            alert('You need to login before send data');
+            return;
+        }
+
         db.transaction(
             tx => {
                 tx.executeSql("select * from items", [], (_, { rows }) => {
 
                     for (let i = 0; i < rows._array.length; i++) {
                         let itm = rows._array[i];
-                        this.pushData(itm,this.synced);
+                        this.pushData(itm, this.synced);
                     }
 
                 });
             },
             null,
         );
+
+        console.log("CustomerId below:");
+
+        console.log(customerId);
     }
 }
 

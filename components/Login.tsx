@@ -14,6 +14,7 @@ function add(userName: string, password: string, customerId: number) {
         customerId === null || customerId === 0) {
         return false;
     }
+    console.log(userName);
 
     db.transaction(
         tx => {
@@ -98,7 +99,8 @@ export function Login(props: any) {
                     style={styles.input}
                     placeholder="User Portal Id"
                     value={id}
-                    onChangeText={(searchString) => { setId({ searchString }) }}
+                    keyboardType="numeric"
+                    onChangeText={newText => setId(newText)}
                     underlineColorAndroid="transparent"
                     onFocus={focused}
                 />
@@ -110,7 +112,7 @@ export function Login(props: any) {
                     style={styles.input}
                     placeholder="User Name"
                     value={userName}
-                    onChangeText={(searchString) => { setUserName({ searchString }) }}
+                    onChangeText={newText => setUserName(newText)}
                     underlineColorAndroid="transparent"
                 />
             </View>
@@ -122,7 +124,7 @@ export function Login(props: any) {
                     placeholder="Password"
                     value={pass}
                     secureTextEntry={true}
-                    onChangeText={(searchString) => { setPass({ searchString }) }}
+                    onChangeText={newText => setPass(newText)}
                     underlineColorAndroid="transparent"
                 />
             </View>
