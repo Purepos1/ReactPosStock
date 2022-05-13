@@ -28,8 +28,8 @@ const Stack = createStackNavigator();
   }
   return (
     <SafeAreaView style={styles.container}>
-     <AppHeader component={navigation} />
-    
+     {/* <AppHeader component={navigation} />
+     */}
       {/* <StockInsert submitBarcode={showModal} clearBarcode={clearBarcode}  /> */}
       <StockDbList />
       {modalVisible && <EditStockModal onDoneFunction={hideModal} isvisible={modalVisible} barcode={barcode}
@@ -44,7 +44,17 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home Screen" >
-        <Stack.Screen name="Home Screen"  component={HomeScreen} />
+        <Stack.Screen name="Home Screen"  component={HomeScreen} options={({navigation})=>({
+                    headerTitle: 'Pure Fly',
+                    headerRight: () => (
+                      <AppHeader component={navigation} />
+                    ),
+                    headerStyle: { backgroundColor: '#1f80ba', borderBottomColor:'black', borderBottomWidth:1, },
+                    headerTintColor:'white',
+                    headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1}
+                  
+                    
+                })} />
         <Stack.Screen name="Login"  component={Login} />
       </Stack.Navigator>
     </NavigationContainer>

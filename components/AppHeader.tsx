@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, Text } from "react-native";
+import { View, Image, StyleSheet, Text, Pressable } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from "react";
 import * as SQLite from 'expo-sqlite';
@@ -7,32 +7,36 @@ const db = SQLite.openDatabase("db.db");
 
 export function LoginButton(props: any) {
     return (
-        <FontAwesome.Button name="sign-in" backgroundColor="#fd7e14" onPress={() =>
+
+        <FontAwesome size={22} name="user" color="#fff" onPress={() =>
             props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
         }  >
-            Login
-        </FontAwesome.Button>
+
+        </FontAwesome>
     );
 }
 
 export function LogoutButton(props: any) {
     const [loginName, setLoginName] = useState('');
     return (
-        <FontAwesome.Button name="sign-out" backgroundColor="#adb5bd" onPress={() =>
-            props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
-        }>
-            <Text> {props.name}</Text>
-        </FontAwesome.Button>
+        <View  >
+            <FontAwesome name="sign-out" size={17} numberOfLines={1}  color="#fff" onPress={() =>
+                props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
+            }>
+                <Text> {props.name}</Text>
+            </FontAwesome>
+        </View>
     );
 }
 
 export function UserName() {
-    const [loginName, setLoginName] = useState('');
     return (
-        <View style={styles.userName}>
-            <FontAwesome name="user" style={{ alignSelf: 'center', }} />
+
+        <FontAwesome name="user" size={22} color="#fff" style={{ alignSelf: 'center', }} >
+
             <Text style={{ fontSize: 16, alignSelf: 'center', marginLeft: 4 }}>Hilmi</Text>
-        </View>
+        </FontAwesome>
+
     );
 }
 export function AppHeader(props: any) {
@@ -61,27 +65,16 @@ export function AppHeader(props: any) {
 
 
     return (
-        <View style={styles.container}>
-            <View style={{ flex: 3 }}>
-                <Image source={require('../assets/images/PosManagerLogo.jpg')} style={styles.image} />
 
-            </View>
-            <View style={styles.icon}>
-                {isLogin == false ? <LoginButton navigation={props.component} loggedIn={onLoggedIn} /> :
-                    <LogoutButton navigation={props.component} loggedIn={onLoggedIn} name={loginName} />}
-
-            </View>
+        <View style={styles.icon}>
+            {isLogin == false ? <LoginButton navigation={props.component} loggedIn={onLoggedIn} /> :
+                <LogoutButton navigation={props.component} loggedIn={onLoggedIn} name={loginName} />}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: 'row',
-        alignContent: 'center',
-        justifyContent: 'flex-start'
-    },
+
 
     image: {
         marginStart: 10,
@@ -93,10 +86,9 @@ const styles = StyleSheet.create({
     },
 
     icon: {
-        flex: 1,
-        alignSelf: 'flex-start',
-        alignContent: 'flex-end',
         marginEnd: 10,
+        width:100,
+        alignItems:'flex-end'
     },
 
     userName: {

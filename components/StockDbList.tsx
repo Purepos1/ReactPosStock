@@ -174,7 +174,7 @@ export class StockDbList extends React.Component {
                         <View style={styles.buttonAdd}>
                             <FontAwesome.Button name="long-arrow-right" backgroundColor="#3b5998"
                                 onPress={() => this.submitItem()} >
-                                Add For Stock Taking
+                                Add To My List
                             </FontAwesome.Button>
                         </View>
                     </View>

@@ -52,6 +52,8 @@ export function SyncModal(props: any) {
 
                             <Text style={styles.modalText}>Enter Reference Number</Text>
                             <Text style={styles.modalInfo}>*Srq No, Stock Form No, etc.</Text>
+                            <Text style={styles.modalInfo}>*Or enter an identifier which you can recognize.</Text>
+                            <Text style={styles.modalInfo}>Ex: Andre's Scaninig, Shelf-1 etc.</Text>
                             <TextInput
                                 style={styles.input}
                                 autoFocus={true}
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
 
     contentView: {
         paddingTop: 5,
-        paddingHorizontal: 40,
+        paddingHorizontal: 30,
         paddingBottom: 30,
     },
     button: {
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
         fontSize: 16
     },
     modalInfo: {
-        marginBottom: 10,
+        marginBottom: 6,
         textAlign: "center",
         fontSize: 12,
         color: "orange"
@@ -141,8 +143,8 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 10,
         justifyContent: 'center',
-        width: 140,
+       
         alignItems: 'stretch',
-        alignSelf: 'center',
+        alignSelf: 'stretch',
     },
 });
