@@ -49,13 +49,19 @@ export default function App() {
                     headerRight: () => (
                       <AppHeader component={navigation} />
                     ),
-                    headerStyle: { backgroundColor: '#1f80ba', borderBottomColor:'black', borderBottomWidth:1, },
+                    headerStyle: { backgroundColor: '#1f80ba', borderBottomColor:'black', borderBottomWidth:1 },
                     headerTintColor:'white',
                     headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1}
                   
                     
                 })} />
-        <Stack.Screen name="Login"  component={Login} />
+        <Stack.Screen name="Login"  component={Login} options={({navigation})=>(
+          {
+            headerLeft:()=>null
+          }
+        )
+          
+        } />
       </Stack.Navigator>
     </NavigationContainer>
 

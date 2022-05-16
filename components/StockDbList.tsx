@@ -87,31 +87,31 @@ export class StockDbList extends React.Component {
         quantity: '',
         onSubmit: null,
         customerId: 0,
-        modalVisible:false,
-        refNumber:''
+        modalVisible: false,
+        refNumber: ''
     };
 
-    hideModal =()=>{this.setState({modalVisible:false})};
+    hideModal = () => { this.setState({ modalVisible: false }) };
 
-    startSync = (ref:string) => {
+    startSync = (ref: string) => {
 
-        if(ref =='')
-        {
+        if (ref == '') {
             alert("Please enter reference number");
-        } else  {
-            this.setState({modalVisible:false});
-            this.setState({refNumber:ref});
+        } else {
+            this.setState({ modalVisible: false });
+            this.setState({ refNumber: ref });
             console.log(ref);
-             this.syncData(this.state.customerId);
-             this.input1Focus.setFocus();
-             this.setState({ barcode: '', quantity: '' });
+            this.syncData(this.state.customerId);
+            this.input1Focus.setFocus();
+            this.setState({ barcode: '', quantity: '' });
         }
     };
 
     constructor(props: any) {
         super(props);
         this.input1Focus = utilizeFocus();
-        this.input2Focus = utilizeFocus()
+        this.input2Focus = utilizeFocus();
+        console.log('ctor');
     }
 
     componentDidMount() {
@@ -121,8 +121,11 @@ export class StockDbList extends React.Component {
             );
         });
         this.input1Focus.setFocus();
-        this.loadUser();
+        this.loadUser(false);
+        console.log('useEffect of StockDbList');
     }
+
+
 
     submitItem() {
         this.add(this.state.barcode, this.state.quantity);
@@ -131,20 +134,26 @@ export class StockDbList extends React.Component {
         this.setState({ barcode: '', quantity: '' });
     }
 
-    loadUser() {
-        console.log("Load user Called");
-        db.transaction(
+    async loadUser(loadAlways: boolean, callback: any) {
+        if (loadAlways == false && this.state.customerId != 0) return;
+
+        console.log("Load user Called from stockdblist");
+        await db.transaction(
             tx => {
                 tx.executeSql("select * from user", [], (_, { rows }) => {
 
                     if (rows._array.length > 0) {
                         console.log(JSON.stringify(rows));
                         console.log(rows._array[0].id);
+                        console.log(rows._array[0].customerId);
                         this.setState({ customerId: rows._array[0].customerId });
+                    } else {
+                        this.setState({ customerId: 0 });
                     }
                 });
             },
             null,
+            callback,
 
         )
     };
@@ -201,8 +210,8 @@ export class StockDbList extends React.Component {
 
                 <View style={{ borderRadius: 0 }} >
                     <FontAwesome.Button borderRadius={0} style={{ alignSelf: 'center' }} name="cloud-upload" backgroundColor="#4D77FF" onPress={() => {
-                       this.setState({modalVisible:true});
-                       
+                        this.setState({ modalVisible: true });
+
                     }} >
                         Sync Data
                     </FontAwesome.Button>
@@ -216,7 +225,7 @@ export class StockDbList extends React.Component {
 
     pushData(data: any, synced: any) {
         const url = format("https://cloud.posmanager.nl/web20/hook/AddStock?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}",
-         data.barcode, data.quantity,this.state.refNumber,this.state.customerId);
+            data.barcode, data.quantity, this.state.refNumber, this.state.customerId);
         axios.get(url)
             .then(function (response) {
                 console.log(response);
@@ -264,31 +273,35 @@ export class StockDbList extends React.Component {
         this.itms && this.itms.update();
     };
 
-    syncData(customerId:any) {
+    async syncData() {
 
-        if(customerId ==0)
-        {
-            alert('You need to login before send data');
-            return;
-        }
+        await this.loadUser(true, () => {
+            if (this.state.customerId == 0) {
+                alert('You need to login before send data');
+                return;
+            }
 
-        db.transaction(
-            tx => {
-                tx.executeSql("select * from items", [], (_, { rows }) => {
+            db.transaction(
+                tx => {
+                    tx.executeSql("select * from items", [], (_, { rows }) => {
 
-                    for (let i = 0; i < rows._array.length; i++) {
-                        let itm = rows._array[i];
-                        this.pushData(itm, this.synced);
-                    }
+                        for (let i = 0; i < rows._array.length; i++) {
+                            let itm = rows._array[i];
+                            this.pushData(itm, this.synced);
+                        }
+                    });
+                },
+                null,
+            );
 
-                });
-            },
-            null,
-        );
+            console.log("CustomerId below:");
 
-        console.log("CustomerId below:");
+            console.log(this.state.customerId);
+        });
 
-        console.log(customerId);
+
+
+
     }
 }
 

@@ -14,7 +14,9 @@ function add(userName: string, password: string, customerId: number) {
         customerId === null || customerId === 0) {
         return false;
     }
+
     console.log(userName);
+    console.log('delete  user from Login add');
 
     db.transaction(
         tx => {
@@ -37,8 +39,10 @@ export function Login(props: any) {
     const [userName, setUserName] = useState('');
     const [pass, setPass] = useState('');
     const [hideCam, setHideCam] = useState(false);
+    
 
     useEffect(() => {
+        
         setId('');
         setUserName('');
         setPass('');
@@ -46,6 +50,7 @@ export function Login(props: any) {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
+        console.log('delete user from useEffect in login')
         db.transaction(tx => {
             tx.executeSql(
                 "create table if not exists user (id integer primary key not null,userName text, password text,customerId int);"
@@ -83,6 +88,13 @@ export function Login(props: any) {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Use QR code for fastly enterence.</Text>
+            <View style={{flexDirection:'row', alignSelf:'center', marginBottom:8}}>
+            <Text style={styles.modalInfo}>*Open PurePOS BO</Text>
+            <FontAwesome name='arrow-right' style={{marginHorizontal:8, marginBottom:5, alignSelf:'center'}}/>
+            <Text style={styles.modalInfo}>Api</Text>
+            <FontAwesome name='arrow-right' style={{marginHorizontal:8, marginBottom:5, alignSelf:'center'}}/>
+            <Text style={styles.modalInfo}>Scanner Settings</Text>
+            </View>
             {!hideCam && <BarCodeScanner
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 style={styles.camera}
@@ -131,8 +143,9 @@ export function Login(props: any) {
 
             <View >
                 <FontAwesome.Button name="sign-in" backgroundColor="#fd7e14" onPress={() => {
+                    console.log('login press called')
                     add(userName, pass, parseInt(id));
-                    props.route.params.loggedIn(userName);
+                    // props.route.params.loggedIn(userName);
                     props.navigation.goBack();
                 }} >
                     Login
@@ -156,12 +169,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     text: {
-        flex: 1,
+        
         alignSelf: 'stretch',
         textAlign: 'center',
         alignContent: 'space-around',
         justifyContent: 'space-around',
         fontSize: 16,
+        marginBottom:8,
     },
     searchSection: {
         flex: 1,
@@ -181,6 +195,12 @@ const styles = StyleSheet.create({
         paddingLeft: 0,
         backgroundColor: '#fff',
         color: '#424242',
+    },
+    modalInfo: {
+        marginBottom: 6,
+        textAlign: "center",
+        fontSize: 12,
+        color: "orange"
     },
 
 });

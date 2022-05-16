@@ -7,11 +7,9 @@ const db = SQLite.openDatabase("db.db");
 
 export function LoginButton(props: any) {
     return (
-
         <FontAwesome size={22} name="user" color="#fff" onPress={() =>
             props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
         }  >
-
         </FontAwesome>
     );
 }
@@ -20,8 +18,9 @@ export function LogoutButton(props: any) {
     const [loginName, setLoginName] = useState('');
     return (
         <View  >
-            <FontAwesome name="sign-out" size={17} numberOfLines={1}  color="#fff" onPress={() =>
-                props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
+            <FontAwesome name="sign-out" size={17} numberOfLines={1} color="#fff" onPress={() => {
+                props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true);
+            }
             }>
                 <Text> {props.name}</Text>
             </FontAwesome>
@@ -29,33 +28,24 @@ export function LogoutButton(props: any) {
     );
 }
 
-export function UserName() {
-    return (
 
-        <FontAwesome name="user" size={22} color="#fff" style={{ alignSelf: 'center', }} >
-
-            <Text style={{ fontSize: 16, alignSelf: 'center', marginLeft: 4 }}>Hilmi</Text>
-        </FontAwesome>
-
-    );
-}
 export function AppHeader(props: any) {
     const [isLogin, setIsLogin] = useState(false);
     const [loginName, setLoginName] = useState('');
-    const onLoggedIn = (name: string) => {
-        setIsLogin(true);
-        setLoginName(name)
-    }
 
     db.transaction(
         tx => {
             tx.executeSql("select * from user", [], (_, { rows }) => {
+                console.log('AppHeader');
 
                 if (rows._array.length > 0) {
                     console.log(JSON.stringify(rows));
                     console.log(rows._array[0].id);
                     setIsLogin(true);
                     setLoginName(rows._array[0].userName);
+                } else {
+                    setIsLogin(false);
+                    setLoginName('');
                 }
             });
         },
@@ -67,8 +57,8 @@ export function AppHeader(props: any) {
     return (
 
         <View style={styles.icon}>
-            {isLogin == false ? <LoginButton navigation={props.component} loggedIn={onLoggedIn} /> :
-                <LogoutButton navigation={props.component} loggedIn={onLoggedIn} name={loginName} />}
+            {isLogin == false ? <LoginButton navigation={props.component} /> :
+                <LogoutButton navigation={props.component} name={loginName} />}
         </View>
     );
 }
@@ -87,8 +77,8 @@ const styles = StyleSheet.create({
 
     icon: {
         marginEnd: 10,
-        width:100,
-        alignItems:'flex-end'
+        width: 100,
+        alignItems: 'flex-end'
     },
 
     userName: {
