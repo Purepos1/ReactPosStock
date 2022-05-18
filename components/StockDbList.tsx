@@ -19,6 +19,7 @@ import axios from "axios";
 import { format } from 'react-string-format';
 import { Alert } from "react-native";
 import { SyncModal } from "./SyncModal";
+import TabbedBarcodeEnterance from "./TabbedBarcodeEnterance";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -161,6 +162,8 @@ export class StockDbList extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+
+                <TabbedBarcodeEnterance/>
                 <View style={styles.editPart}>
                     <View style={styles.flexRow}>
                         <TextInput
@@ -169,6 +172,7 @@ export class StockDbList extends React.Component {
                             style={styles.input}
                             value={this.state.barcode}
                             ref={this.input1Focus.ref}
+                            selectionColor={'#3b5998'}
                             onSubmitEditing={() => this.input2Focus.setFocus()}
                         />
                         <TextInput
@@ -178,6 +182,7 @@ export class StockDbList extends React.Component {
                             keyboardType="numeric"
                             value={this.state.quantity}
                             ref={this.input2Focus.ref}
+                            selectionColor={'#3b5998'}
                             onSubmitEditing={() => this.submitItem()}
                         />
                         <View style={styles.buttonAdd}>
@@ -308,7 +313,6 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
         flex: 9,
-        paddingTop: Constants.statusBarHeight - 15
     },
     editPart: {
         backgroundColor: 'white',
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
 
     },
     input: {
-        borderColor: "#4630eb",
+        borderColor: "#3b5998",
         borderRadius: 4,
         borderWidth: 1,
         height: 40,

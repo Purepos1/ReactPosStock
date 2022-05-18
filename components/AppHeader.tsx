@@ -7,7 +7,7 @@ const db = SQLite.openDatabase("db.db");
 
 export function LoginButton(props: any) {
     return (
-        <FontAwesome size={22} name="user" color="#fff" onPress={() =>
+        <FontAwesome size={22} name="user" color="#3b5998" onPress={() =>
             props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true)
         }  >
         </FontAwesome>
@@ -18,7 +18,7 @@ export function LogoutButton(props: any) {
     const [loginName, setLoginName] = useState('');
     return (
         <View  >
-            <FontAwesome name="sign-out" size={17} numberOfLines={1} color="#fff" onPress={() => {
+            <FontAwesome name="sign-out" size={17} numberOfLines={1} color="#3b5998" onPress={() => {
                 props.navigation.navigate('Login', { loggedIn: props.loggedIn }, true);
             }
             }>
@@ -67,8 +67,6 @@ export function AppHeader(props: any) {
 }
 
 const styles = StyleSheet.create({
-
-
     image: {
         marginStart: 10,
         height: 50,

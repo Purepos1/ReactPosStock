@@ -49,8 +49,8 @@ export default function App() {
                     headerRight: () => (
                       <AppHeader component={navigation} />
                     ),
-                    headerStyle: { backgroundColor: '#1f80ba', borderBottomColor:'black', borderBottomWidth:1 },
-                    headerTintColor:'white',
+                    headerStyle: { backgroundColor: '#fff', borderBottomColor:'#3b5998', borderBottomWidth:1 },
+                    headerTintColor:'#3b5998',
                     headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1}
                   
                     
@@ -71,9 +71,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex:10,
-    backgroundColor: '#fff',
+    backgroundColor: '#1f80ba',
     alignItems: 'stretch',
-    
   },
 
 });
