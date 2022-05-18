@@ -32,7 +32,7 @@ export function LogoutButton(props: any) {
 export function AppHeader(props: any) {
     const [isLogin, setIsLogin] = useState(false);
     const [loginName, setLoginName] = useState('');
-
+    console.log('AppHeader Start called');
     db.transaction(
         tx => {
             tx.executeSql("select * from user", [], (_, { rows }) => {
@@ -46,10 +46,13 @@ export function AppHeader(props: any) {
                 } else {
                     setIsLogin(false);
                     setLoginName('');
+                    console.log('no line');
                 }
             });
         },
-        null,
+        err=>{
+            console.log(err);
+        },
 
     );
 

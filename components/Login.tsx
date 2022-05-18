@@ -52,10 +52,14 @@ export function Login(props: any) {
         })();
         console.log('delete user from useEffect in login')
         db.transaction(tx => {
+            console.log('Create table user');
             tx.executeSql(
                 "create table if not exists user (id integer primary key not null,userName text, password text,customerId int);"
             );
             tx.executeSql("delete from user");
+        },
+        err=>{
+            console.log(err);
         });
 
     }, []);
