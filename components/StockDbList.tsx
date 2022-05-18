@@ -208,6 +208,8 @@ export class StockDbList extends React.Component {
 
                 </ScrollView>
 
+                {this.state.modalVisible && <SyncModal onDoneFunction={this.startSync} onCancel={this.hideModal} isvisible={this.state.modalVisible} />}
+
                 <View style={{ borderRadius: 0 }} >
                     <FontAwesome.Button borderRadius={0} style={{ alignSelf: 'center' }} name="cloud-upload" backgroundColor="#4D77FF" onPress={() => {
                         this.setState({ modalVisible: true });
@@ -216,9 +218,6 @@ export class StockDbList extends React.Component {
                         Sync Data
                     </FontAwesome.Button>
                 </View>
-
-                {this.state.modalVisible && <SyncModal onDoneFunction={this.startSync} onCancel={this.hideModal} isvisible={this.state.modalVisible} />}
-
             </View>
         );
     }
