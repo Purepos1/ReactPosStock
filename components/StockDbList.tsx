@@ -163,7 +163,7 @@ export class StockDbList extends React.Component {
         return (
             <View style={styles.container}>
 
-                <TabbedBarcodeEnterance/>
+                {/* <TabbedBarcodeEnterance/> */}
                 <View style={styles.editPart}>
                     <View style={styles.flexRow}>
                         <TextInput

@@ -20,8 +20,8 @@ export default function TabbedBarcodeEnterance() {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: 'first', title: 'First' },
-    { key: 'second', title: 'Second' },
+    { key: 'first', title: 'Vıa Typıng' },
+    { key: 'second', title: 'Vıa Scannıng' },
   ]);
 
   return (
