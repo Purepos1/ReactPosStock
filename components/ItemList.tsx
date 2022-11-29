@@ -22,6 +22,8 @@ import { SyncModal } from "./SyncModal";
 import TabbedBarcodeEnterance from "./TabbedBarcodeEnterance";
 import { Items } from "./Items";
 
+//Hilmi Test
+
 const db = SQLite.openDatabase("db.db");
 
 type ItemListType={
