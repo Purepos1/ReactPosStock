@@ -6,9 +6,6 @@ import {
     View,
     TextInput,
     TouchableOpacity,
-    Touchable,
-    Image,
-    Button,
     ToastAndroid
 } from "react-native";
 import Constants from "expo-constants";
@@ -19,7 +16,6 @@ import axios from "axios";
 import { format } from 'react-string-format';
 import { Alert } from "react-native";
 import { SyncModal } from "./SyncModal";
-import TabbedBarcodeEnterance from "./TabbedBarcodeEnterance";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -171,6 +167,8 @@ export class StockDbList extends React.Component {
                             placeholder="Enter Barcode"
                             style={styles.input}
                             value={this.state.barcode}
+                            showSoftInputOnFocus={false}
+                            autoFocus={true}
                             ref={this.input1Focus.ref}
                             selectionColor={'#3b5998'}
                             onSubmitEditing={() => this.input2Focus.setFocus()}
@@ -220,7 +218,7 @@ export class StockDbList extends React.Component {
                         this.setState({ modalVisible: true });
 
                     }} >
-                        Sync Data
+                        Sync Data 2
                     </FontAwesome.Button>
                 </View>
             </View>

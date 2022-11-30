@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import { TextInput, View, StyleSheet, SafeAreaView, Image } from "react-native";
 
 export function StockInsert(props: any) {
