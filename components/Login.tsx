@@ -50,17 +50,26 @@ export function Login(props: any) {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
-        console.log('delete user from useEffect in login')
+        console.log('delete user from user in login')
         db.transaction(tx => {
             console.log('Create table user');
             tx.executeSql(
                 "create table if not exists user (id integer primary key not null,userName text, password text,customerId int);"
             );
+        },
+        err=>{
+            console.log(err);
+        });
+
+        db.transaction(tx => {
+            console.log('delete table user');
             tx.executeSql("delete from user");
         },
         err=>{
             console.log(err);
         });
+
+
 
     }, []);
 

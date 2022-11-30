@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ReactPosStock",
-    "slug": "ReactPosStock",
+    "name": "Pure Fly App",
+    "slug": "Pure Fly Mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
