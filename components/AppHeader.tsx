@@ -68,7 +68,7 @@ export function AppHeader(props: any) {
 
 const styles = StyleSheet.create({
     image: {
-        marginStart: 10,
+        marginStart: 15,
         height: 50,
         width: 200,
         resizeMode: 'stretch',
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     },
 
     icon: {
-        marginEnd: 10,
+        marginEnd: 15,
         width: 100,
         alignItems: 'flex-end'
     },

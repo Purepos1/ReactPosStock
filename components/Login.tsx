@@ -7,7 +7,7 @@ import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase("db.db");
 
-function add(userName: string, password: string, customerId: number) {
+function add(userName: string, password: string, customerId: number,database:string) {
     // is text empty?
     if (userName === null || userName === "" ||
         password === null || password === "" ||
@@ -16,17 +16,19 @@ function add(userName: string, password: string, customerId: number) {
     }
 
     console.log(userName);
-    console.log('delete  user from Login add');
+    console.log('!!! delete  user from Login add');
 
     db.transaction(
         tx => {
             tx.executeSql("delete from user");
-            tx.executeSql("insert into user (userName,password,customerId) values (?, ?,?)", [userName, password, customerId]);
+            tx.executeSql("insert into user (userName,password,customerId,database) values (?,?,?,?)", [userName, password, customerId,database]);
             tx.executeSql("select * from user", [], (_, { rows }) =>
                 console.log(JSON.stringify(rows))
             );
         },
-        null,
+        err=>{
+            console.log(err);
+        },
         
     );
 }
@@ -39,6 +41,7 @@ export function Login(props: any) {
     const [userName, setUserName] = useState('');
     const [pass, setPass] = useState('');
     const [hideCam, setHideCam] = useState(false);
+    const [database,setDatabase] = useState('');
     
 
     useEffect(() => {
@@ -46,6 +49,7 @@ export function Login(props: any) {
         setId('');
         setUserName('');
         setPass('');
+        setDatabase('');
         (async () => {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
@@ -53,8 +57,9 @@ export function Login(props: any) {
         console.log('delete user from user in login')
         db.transaction(tx => {
             console.log('Create table user');
+            console.log('User table dropped');
             tx.executeSql(
-                "create table if not exists user (id integer primary key not null,userName text, password text,customerId int);"
+                "create table if not exists user (id integer primary key not null,userName text, password text,customerId int,database text);"
             );
         },
         err=>{
@@ -84,6 +89,7 @@ export function Login(props: any) {
         setId(splitted[0]);
         setUserName(splitted[1]);
         setPass(splitted[2]);
+        setDatabase(splitted[3]);
     };
 
     if (hasPermission === null) {
@@ -154,10 +160,21 @@ export function Login(props: any) {
                 />
             </View>
 
+            <View style={styles.searchSection}>
+                <FontAwesome name="database" style={styles.searchIcon} />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Database"
+                    value={database}
+                    onChangeText={newText => setDatabase(newText)}
+                    underlineColorAndroid="transparent"
+                />
+            </View>
+
             <View >
                 <FontAwesome.Button name="sign-in" backgroundColor="#fd7e14" onPress={() => {
                     console.log('login press called')
-                    add(userName, pass, parseInt(id));
+                    add(userName, pass, parseInt(id), database);
                     // props.route.params.loggedIn(userName);
                     props.navigation.goBack();
                 }} >

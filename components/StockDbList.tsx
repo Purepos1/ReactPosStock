@@ -169,7 +169,6 @@ export class StockDbList extends React.Component {
                             placeholder="Enter Barcode"
                             style={styles.input}
                             value={this.state.barcode}
-                            showSoftInputOnFocus={false}
                             autoFocus={true}
                             ref={this.input1Focus.ref}
                             selectionColor={'#3b5998'}
@@ -232,7 +231,7 @@ export class StockDbList extends React.Component {
 
                         });
                     }} >
-                        Sync Data 2
+                        Send To PurePOS
                     </FontAwesome.Button>
                 </View>
             </View>
@@ -244,18 +243,24 @@ export class StockDbList extends React.Component {
             data.barcode, data.quantity, this.state.refNumber, this.state.customerId);
         axios.get(url)
             .then(function (response) {
-                console.log(response);
-
-                db.transaction(
-                    tx => {
-                        tx.executeSql(`delete from items where id = ?;`, [data.id]);
-                    },
-                    null,
-                    synced
-                )
+                console.log(response.data);
+if(response.data)
+{
+    db.transaction(
+        tx => {
+            tx.executeSql(`delete from items where id = ?;`, [data.id]);
+        },
+        null,
+        synced
+    )
+}else{
+    Alert.alert('Problem','The problem occured please re send!');
+}
+              
 
             })
             .catch(function (error) {
+                Alert.alert('Problem','The problem occured please resend!');
                 console.log("Hilmi error :" + error.response.data);
             });
     }
