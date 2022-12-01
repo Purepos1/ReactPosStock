@@ -104,7 +104,7 @@ export function Login(props: any) {
             <View style={{flexDirection:'row', alignSelf:'center', marginBottom:8}}>
             <Text style={styles.modalInfo}>*Open PurePOS BO</Text>
             <FontAwesome name='arrow-right' style={{marginHorizontal:8, marginBottom:5, alignSelf:'center'}}/>
-            <Text style={styles.modalInfo}>Api</Text>
+            <Text style={styles.modalInfo}>Settings</Text>
             <FontAwesome name='arrow-right' style={{marginHorizontal:8, marginBottom:5, alignSelf:'center'}}/>
             <Text style={styles.modalInfo}>Scanner Settings</Text>
             </View>
@@ -195,18 +195,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent',
+        borderColor:"#C4D7E0",
+        borderBottomWidth:1,
     },
     searchIcon: {
         padding: 10,
+       
+       
     },
     input: {
         flex: 1,
         paddingTop: 10,
-        paddingRight: 10,
+        paddingRight: 0,
         paddingBottom: 10,
         paddingLeft: 0,
-        backgroundColor: '#fff',
+        
+        borderColor:"#C4D7E0",
+        backgroundColor: 'transparent',
         color: '#424242',
     },
     modalInfo: {

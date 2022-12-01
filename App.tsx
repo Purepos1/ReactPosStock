@@ -2,17 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Image } from 'react-native';
 import { StockDbList } from './components/StockDbList';
 import { useState } from 'react';
-import * as React from 'react';
-import { EditStockModal } from './components/EditStockModal';
-import { StockInsert } from './components/StockInsert';
-import * as NavigationBar from 'expo-navigation-bar';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Login } from './components/Login';
 import { AppHeader } from './components/AppHeader';
-
-
 
 const Stack = createStackNavigator();
 
@@ -28,9 +21,7 @@ const Stack = createStackNavigator();
   }
   return (
     <SafeAreaView style={styles.container}>
-      <StockDbList />
-      {modalVisible && <EditStockModal onDoneFunction={hideModal} isvisible={modalVisible} barcode={barcode}
-        onClearBarcode={clearBarcode} submitQty={setQty} />}
+      <StockDbList  />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
@@ -46,14 +37,15 @@ export default function App() {
                     headerRight: () => (
                       <AppHeader component={navigation} />
                     ),
-                    headerStyle: { backgroundColor: '#fff', borderBottomColor:'#3b5998', borderBottomWidth:1 },
-                    headerTintColor:'#3b5998',
+                    headerStyle: { backgroundColor: '#3b5998', borderBottomColor:'#3b5998', borderBottomWidth:1 },
+                    headerTintColor:'#fff',
                     headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1}
-                  
-                    
                 })} />
         <Stack.Screen name="Login"  component={Login} options={({navigation})=>(
           {
+            headerStyle: { backgroundColor: '#3b5998', borderBottomColor:'#3b5998', borderBottomWidth:1 },
+            headerTintColor:'#fff',
+            headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1},
             headerLeft:()=>null
           }
         )

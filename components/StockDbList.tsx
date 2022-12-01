@@ -50,7 +50,9 @@ class Items extends React.Component {
                         }}
                     >
                         <View style={styles.itemContainer}>
-                            <Text style={{ flex: 1 }}>{barcode}</Text>
+                        <Text style={{ minWidth:25, fontWeight:"bold" }}>{id}</Text>
+                        <Text style={{marginEnd:10}}>-</Text>
+                            <Text style={{ flex: 3 }}>{barcode}</Text>
                             <Text style={{ alignItems: 'flex-end', flex: 1, textAlign: 'right' }}>{quantity}</Text>
                         </View>
 
@@ -63,7 +65,7 @@ class Items extends React.Component {
     update() {
         db.transaction(tx => {
             tx.executeSql(
-                `select * from items;`,
+                `select * from items order by id desc;`,
                 [],
                 (_, { rows: { _array } }) => this.setState({ items: _array })
             );
@@ -215,8 +217,20 @@ export class StockDbList extends React.Component {
 
                 <View style={{ borderRadius: 0 }} >
                     <FontAwesome.Button borderRadius={0} style={{ alignSelf: 'center' }} name="cloud-upload" backgroundColor="#4D77FF" onPress={() => {
-                        this.setState({ modalVisible: true });
+                        
+                        this.loadUser(true, () => {
+                            if (this.state.customerId == 0) {
+                                Alert.alert('Login','You need to login before send data!');
+                                return;
+                            }
+                
+                            console.log("CustomerId below:");
+                
+                            console.log(this.state.customerId);
+                            
+                            this.setState({ modalVisible: true });
 
+                        });
                     }} >
                         Sync Data 2
                     </FontAwesome.Button>
@@ -256,7 +270,7 @@ export class StockDbList extends React.Component {
         db.transaction(
             tx => {
                 tx.executeSql("insert into items (barcode,quantity,synced) values (?, ?,0)", [barcode, quantity]);
-                tx.executeSql("select * from items", [], (_, { rows }) =>
+                tx.executeSql("select * from items order by id desc", [], (_, { rows }) =>
                     console.log(JSON.stringify(rows))
                 );
             },
@@ -277,29 +291,20 @@ export class StockDbList extends React.Component {
 
     async syncData() {
 
-        await this.loadUser(true, () => {
-            if (this.state.customerId == 0) {
-                alert('You need to login before send data');
-                return;
-            }
+        db.transaction(
+            tx => {
+                tx.executeSql("select * from items order by id desc", [], (_, { rows }) => {
 
-            db.transaction(
-                tx => {
-                    tx.executeSql("select * from items", [], (_, { rows }) => {
+                    for (let i = 0; i < rows._array.length; i++) {
+                        let itm = rows._array[i];
+                        this.pushData(itm, this.synced);
+                    }
+                });
+            },
+            null,
+        );
 
-                        for (let i = 0; i < rows._array.length; i++) {
-                            let itm = rows._array[i];
-                            this.pushData(itm, this.synced);
-                        }
-                    });
-                },
-                null,
-            );
-
-            console.log("CustomerId below:");
-
-            console.log(this.state.customerId);
-        });
+       
 
 
 
@@ -309,11 +314,11 @@ export class StockDbList extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: "#fff",
+        backgroundColor: "#EFF5F5",
         flex: 9,
     },
     editPart: {
-        backgroundColor: 'white',
+        backgroundColor: '#EFF5F5',
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -323,8 +328,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
         borderColor: 'gray',
-        padding: 5,
-        paddingBottom: 10,
+        padding: 0,
+        paddingTop:5,
+        paddingBottom: 0,
     },
 
     buttonAdd: {
@@ -343,18 +349,19 @@ const styles = StyleSheet.create({
 
     },
     input: {
-        borderColor: "#3b5998",
+        borderColor: "#C4D7E0",
+        backgroundColor:"#fff",
         borderRadius: 4,
         borderWidth: 1,
         height: 40,
-        margin: 12,
-        padding: 8
+        margin: 10,
+        padding: 10
     },
     listArea: {
-        backgroundColor: "white",
+        backgroundColor: "#EFF5F5",
         flex: 1,
-        paddingTop: 16,
-        marginTop: 16,
+        paddingTop: 6,
+        marginTop: 6,
     },
     sectionContainer: {
         marginBottom: 16,
