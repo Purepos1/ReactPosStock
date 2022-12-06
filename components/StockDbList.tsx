@@ -157,6 +157,12 @@ export class StockDbList extends React.Component {
         )
     };
 
+     handleKeyDown(e) {
+        if(e.nativeEvent.key == "Enter"){
+            this.input2Focus.setFocus();
+        }
+    };
+
     render() {
         return (
             <View style={styles.container}>
@@ -169,6 +175,7 @@ export class StockDbList extends React.Component {
                             placeholder="Enter Barcode"
                             style={styles.input}
                             value={this.state.barcode}
+                            onKeyPress={this.handleKeyDown}
                             autoFocus={true}
                             ref={this.input1Focus.ref}
                             selectionColor={'#3b5998'}
