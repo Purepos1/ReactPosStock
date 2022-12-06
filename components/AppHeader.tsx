@@ -35,6 +35,11 @@ export function AppHeader(props: any) {
     console.log('AppHeader Start called');
     db.transaction(
         tx => {
+
+            tx.executeSql(
+                "create table if not exists user (id integer primary key not null,userName text, password text,customerId int,database text);"
+            );
+
             tx.executeSql("select * from user", [], (_, { rows }) => {
                 console.log('AppHeader');
 
