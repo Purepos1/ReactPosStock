@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     },
 
     buttonAdd: {
-        margin: 10,
+        margin: 6,
         height: 50,
     },
 
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         borderWidth: 1,
         height: 40,
-        margin: 10,
+        margin: 6,
         padding: 10
     },
     listArea: {
