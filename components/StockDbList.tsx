@@ -16,6 +16,7 @@ import axios from "axios";
 import { format } from 'react-string-format';
 import { Alert } from "react-native";
 import { SyncModal } from "./SyncModal";
+import { Keyboard } from 'react-native'
 
 const db = SQLite.openDatabase("db.db");
 
@@ -87,7 +88,8 @@ export class StockDbList extends React.Component {
         onSubmit: null,
         customerId: 0,
         modalVisible: false,
-        refNumber: ''
+        refNumber: '',
+        input2Focus:null
     };
 
     hideModal = () => { this.setState({ modalVisible: false }) };
@@ -95,7 +97,7 @@ export class StockDbList extends React.Component {
     startSync = (ref: string) => {
 
         if (ref == '') {
-            alert("Please enter reference number");
+            Alert.alert("Informatie","Geef hier uw referentie in");
         } else {
             this.setState({ modalVisible: false });
             this.setState({ refNumber: ref });
@@ -119,11 +121,14 @@ export class StockDbList extends React.Component {
                 "create table if not exists items (id integer primary key not null,barcode text, quantity int, synced int);"
             );
         });
+        this.input2Focus.setFocus();
         this.input1Focus.setFocus();
         this.loadUser(false);
         console.log('useEffect of StockDbList');
+        
     }
 
+    
 
 
     submitItem() {
@@ -157,13 +162,12 @@ export class StockDbList extends React.Component {
         )
     };
 
-     handleKeyDown(e) {
-        if(e.nativeEvent.key == "Enter"){
-            this.input2Focus.setFocus();
-        }
-    };
+    
 
     render() {
+
+  
+
         return (
             <View style={styles.container}>
 
@@ -172,18 +176,18 @@ export class StockDbList extends React.Component {
                     <View style={styles.flexRow}>
                         <TextInput
                             onChangeText={text => this.setState({ barcode: text })}
-                            placeholder="Enter Barcode"
+                            placeholder="Scan Barcode"
                             style={styles.input}
                             value={this.state.barcode}
-                            onKeyPress={this.handleKeyDown}
                             autoFocus={true}
                             ref={this.input1Focus.ref}
+                            returnKeyType='next'
                             selectionColor={'#3b5998'}
                             onSubmitEditing={() => this.input2Focus.setFocus()}
                         />
                         <TextInput
                             onChangeText={qty => this.setState({ quantity: qty })}
-                            placeholder="Enter Quantity"
+                            placeholder="Voer aantal in"
                             style={styles.input}
                             keyboardType="numeric"
                             value={this.state.quantity}
@@ -194,7 +198,7 @@ export class StockDbList extends React.Component {
                         <View style={styles.buttonAdd}>
                             <FontAwesome.Button name="long-arrow-right" backgroundColor="#3b5998"
                                 onPress={() => this.submitItem()} >
-                                Add To My List
+                               Opslaan
                             </FontAwesome.Button>
                         </View>
                     </View>
@@ -226,7 +230,7 @@ export class StockDbList extends React.Component {
                         
                         this.loadUser(true, () => {
                             if (this.state.customerId == 0) {
-                                Alert.alert('Login','You need to login before send data!');
+                                Alert.alert('Login','U moet eerst inloggen');
                                 return;
                             }
                 
@@ -238,7 +242,7 @@ export class StockDbList extends React.Component {
 
                         });
                     }} >
-                        Send To PurePOS
+                        Verzenden naar PurePOS
                     </FontAwesome.Button>
                 </View>
             </View>
@@ -261,14 +265,14 @@ if(response.data)
         synced
     )
 }else{
-    Alert.alert('Problem','The problem occured please re send!');
+    Alert.alert('Problem','Er is een probleem opgetreden probeer het opnieuw!');
 }
               
 
             })
             .catch(function (error) {
-                Alert.alert('Problem','The problem occured please resend!');
-                console.log("Hilmi error :" + error.response.data);
+                Alert.alert('Problem','Er is een probleem opgetreden probeer het opnieuw!');
+                console.log("Error :" + error.response.data);
             });
     }
 
@@ -293,7 +297,7 @@ if(response.data)
 
     synced = () => {
         this.update();
-        ToastAndroid.show('Data(s) are send to PurePOS system.', ToastAndroid.LONG);
+        ToastAndroid.show('Uw data is verzonden', ToastAndroid.LONG);
 
     }
 

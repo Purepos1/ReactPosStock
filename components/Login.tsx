@@ -4,6 +4,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Keyboard } from 'react-native'
 import * as SQLite from 'expo-sqlite';
+import { Alert } from "react-native";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -93,10 +94,12 @@ export function Login(props: any) {
     };
 
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
+        //Requesting for camera permission
+        return <Text>Geef toestemming voor de camera</Text>;
     }
     if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
+        //No access to camera
+        return <Text>Geen toestemming voor camera</Text>;
     }
 
     const focused = () => {
@@ -106,20 +109,23 @@ export function Login(props: any) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Use QR code for fastly enterence.</Text>
+            {/* Use QR code for fastly enterence. */}
+            <Text style={styles.text}>Scan QR code vanuit de applicatie.</Text>
             <View style={{flexDirection:'row', alignSelf:'center', marginBottom:8}}>
             <Text style={styles.modalInfo}>*Open PurePOS BO</Text>
             <FontAwesome name='arrow-right' style={{marginHorizontal:8, marginBottom:5, alignSelf:'center'}}/>
-            <Text style={styles.modalInfo}>Settings</Text>
+            <Text style={styles.modalInfo}>Instellingen</Text>
             <FontAwesome name='arrow-right' style={{marginHorizontal:8, marginBottom:5, alignSelf:'center'}}/>
-            <Text style={styles.modalInfo}>Scanner Settings</Text>
+            <Text style={styles.modalInfo}>Scanner instellingen</Text>
             </View>
             {!hideCam && <BarCodeScanner
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 style={styles.camera}
             />}
-            {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
-            {hideCam && <Button title={'Tap to Open Cam Again'} onPress={() => {
+            {/* Tap to Scan Again */}
+            {scanned && <Button title={'Click om te scannen'} onPress={() => setScanned(false)} />} 
+            {/* Tap to Open Camera Again   */}
+            {hideCam && <Button title={'Click om camera te openen'} onPress={() => {
                 setHideCam(false);
                 Keyboard.dismiss();
             }} />}
@@ -128,7 +134,7 @@ export function Login(props: any) {
                 <FontAwesome name="key" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="User Portal Id"
+                    placeholder="Gebruiker portal"
                     value={id}
                     keyboardType="numeric"
                     onChangeText={newText => setId(newText)}
@@ -141,7 +147,7 @@ export function Login(props: any) {
                 <FontAwesome name="user" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="User Name"
+                    placeholder="Gebruikersnaam"
                     value={userName}
                     onChangeText={newText => setUserName(newText)}
                     underlineColorAndroid="transparent"
@@ -152,7 +158,7 @@ export function Login(props: any) {
                 <FontAwesome name="lock" style={styles.searchIcon} />
                 <TextInput
                     style={styles.input}
-                    placeholder="Password"
+                    placeholder="Wachtwoord"
                     value={pass}
                     secureTextEntry={true}
                     onChangeText={newText => setPass(newText)}

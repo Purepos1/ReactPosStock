@@ -33,7 +33,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home Screen" >
         <Stack.Screen name="Home Screen"  component={HomeScreen} options={({navigation})=>({
-                    headerTitle: 'Pure SCAN',
+                    headerTitle: 'PureSCAN',
                     headerRight: () => (
                       <AppHeader component={navigation} />
                     ),
@@ -41,8 +41,9 @@ export default function App() {
                     headerTintColor:'#fff',
                     headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1}
                 })} />
-        <Stack.Screen name="Login"  component={Login} options={({navigation})=>(
+        <Stack.Screen name="Login" component={Login} options={({navigation})=>(
           {
+            headerTitle:'Inloggen',
             headerStyle: { backgroundColor: '#3b5998', borderBottomColor:'#3b5998', borderBottomWidth:1 },
             headerTintColor:'#fff',
             headerTitleStyle:{fontFamily:'notoserif', letterSpacing:1},

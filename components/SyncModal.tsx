@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, Button, TextInput, Modal, Pressable } from 'rea
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Keyboard } from 'react-native'
+import { Alert } from "react-native";
 
 export function SyncModal(props: any) {
     const [refNum, setRefNum] = useState("");
@@ -37,10 +38,7 @@ export function SyncModal(props: any) {
                                 opacity: pressed ? 0.5 : 1,
                                 alignSelf: 'flex-end',
                             })}>
-                            <FontAwesome
-                                name="close"
-                                size={25}
-
+                            <FontAwesome name="close" size={25}
                                 style={{
                                     marginRight: 7,
                                     marginTop: 1,
@@ -49,11 +47,13 @@ export function SyncModal(props: any) {
                         </Pressable>
 
                         <View style={styles.contentView}>
-
-                            <Text style={styles.modalText}>Enter Reference Number</Text>
-                            <Text style={styles.modalInfo}>*Srq No, Stock Form No, etc.</Text>
-                            <Text style={styles.modalInfo}>*Or enter an identifier which you can recognize.</Text>
-                            <Text style={styles.modalInfo}>Ex: Andre's Scaninig, Shelf-1 etc.</Text>
+                        {/* Enter Reference Number */}
+                            <Text style={styles.modalText}>Geef uw referentie in!</Text>
+                            {/* *Srq No, Stock Form No, etc. */}
+                            <Text style={styles.modalInfo}>Bijv. welk schap, of order voor..</Text>
+                            
+                            {/* Ex: Andre's Scaninig, Shelf-1 etc. */}
+                            <Text style={styles.modalInfo}>Voorbeeld Andre's Scaninig, Schap-1.</Text>
                             <TextInput
                                 style={styles.input}
                                 autoFocus={true}
@@ -63,6 +63,7 @@ export function SyncModal(props: any) {
                                 style={[styles.button, styles.buttonClose]}
                                 onPress={onDone}
                             >
+                                {/* Start Sync */}
                                 <Text style={styles.textStyle}>Start Sync</Text>
                             </Pressable>
                         </View>
