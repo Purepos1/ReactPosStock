@@ -142,12 +142,12 @@ export class StockDbList extends React.Component {
   submitItem() {
     if (Number(this.state.quantity) > 1000) {
       Alert.alert(
-        "Are your sure?",
-        "Are you sure you want to add large quantity?",
+        "Weet je het zeker?",
+        "Weet u zeker dat u een grote hoeveelheid wilt toevoegen?",
         [
           // The "Yes" button
           {
-            text: "Yes",
+            text: "Ja",
             onPress: () => {
               this.addItem();
             },
@@ -155,7 +155,7 @@ export class StockDbList extends React.Component {
           // The "No" button
           // Does nothing but dismiss the dialog when tapped
           {
-            text: "No",
+            text: "Nee",
             onPress: () => {
               this.input2Focus.setFocus();
               this.setState({ quantity: "",});
