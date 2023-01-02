@@ -38,7 +38,6 @@ class UserBL {
           tx.executeSql(
             "create table if not exists user (id integer primary key not null,userName text, password text,customerId int,database text);"
           );
-          console.log("User table create called");
         },
         (err) => {
           console.log(err);

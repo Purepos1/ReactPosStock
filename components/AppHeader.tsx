@@ -49,17 +49,12 @@ export function AppHeader(props: any) {
   const [isLogin, setIsLogin] = useState(false);
   const [loginName, setLoginName] = useState("");
   const [database, setDatabase] = useState("");
-  console.log("AppHeader Start called");
   UserDbFunction.CreateTable();
   db.transaction(
     (tx) => {
 
       tx.executeSql("select * from user", [], (_, { rows }) => {
-        console.log("AppHeader");
-
         if (rows._array.length > 0) {
-          console.log(JSON.stringify(rows));
-          console.log(rows._array[0].id);
           setIsLogin(true);
           setLoginName(rows._array[0].userName);
           setDatabase(rows._array[0].database);

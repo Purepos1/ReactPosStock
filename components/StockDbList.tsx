@@ -19,6 +19,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import axios from "axios";
 import { format } from "react-string-format";
 import { SyncModal } from "./SyncModal";
+import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
+import { color } from "react-native-reanimated";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -42,7 +44,7 @@ class Items extends React.Component {
 
     return (
       <View style={styles.sectionContainer}>
-        {items.map(({ id, barcode, quantity, synced }) => (
+        {items.map(({ id, barcode, quantity, synced, name, price }) => (
           <TouchableOpacity
             key={id}
             onLongPress={() =>
@@ -51,18 +53,25 @@ class Items extends React.Component {
             style={{
               borderColor: "lightgray",
               borderBottomWidth: 1,
-              padding: 8,
+              padding: 3,
             }}
           >
             <View style={styles.itemContainer}>
-              <Text style={{ minWidth: 25, fontWeight: "bold" }}>{id}</Text>
-              <Text style={{ marginEnd: 10 }}>-</Text>
-              <Text style={{ flex: 3 }}>{barcode}</Text>
-              <Text
-                style={{ alignItems: "flex-end", flex: 1, textAlign: "right" }}
-              >
-                {quantity}
-              </Text>
+              
+             
+              <View style={styles.itemTemplate}>
+                <Text style={{ flex: 1, fontSize: 14 }}>{name}</Text>
+                <Text style={{ flex: 1, fontSize: 12, color: "#CC5500" }}>
+                  Barcode:{barcode}
+                </Text>
+              </View>
+              <View style={styles.itemPrice}>
+                <Text style={{ flex: 1, fontSize: 14 }}>{quantity}</Text>
+                <Text style={{ flex: 1, fontSize: 12, color: "#CC5500" }}>
+                  {price} €
+                </Text>
+              </View>
+            
             </View>
           </TouchableOpacity>
         ))}
@@ -73,7 +82,7 @@ class Items extends React.Component {
   update() {
     db.transaction((tx) => {
       tx.executeSql(
-        `select * from items order by id desc;`,
+        "select * from items order by id desc;",
         [],
         (_, { rows: { _array } }) => this.setState({ items: _array })
       );
@@ -100,7 +109,7 @@ export class StockDbList extends React.Component {
     refNumber: "",
     input2Focus: null,
     showAlert: false,
-    quantityRejected:false
+    quantityRejected: false,
   };
 
   hideModal = () => {
@@ -124,13 +133,13 @@ export class StockDbList extends React.Component {
     super(props);
     this.input1Focus = utilizeFocus();
     this.input2Focus = utilizeFocus();
-    console.log("ctor");
   }
 
   componentDidMount() {
     db.transaction((tx) => {
       tx.executeSql(
-        "create table if not exists items (id integer primary key not null,barcode text, quantity int, synced int);"
+        "create table if not exists items (id integer primary key not null," +
+          "barcode text, quantity int, synced int, name text, price decimal);"
       );
     });
     this.input2Focus.setFocus();
@@ -158,26 +167,35 @@ export class StockDbList extends React.Component {
             text: "Nee",
             onPress: () => {
               this.input2Focus.setFocus();
-              this.setState({ quantity: "",});
+              this.setState({ quantity: "" });
             },
           },
         ]
       );
-    }else 
-    {
+    } else {
       this.addItem();
     }
-
-   
   }
 
-  addItem()
-  {
-    this.add(this.state.barcode, this.state.quantity);
+  addItem() {
+    GetProductInfo(this.state.customerId, this.state.barcode, this.added);
+  }
+
+  added = (data: any) => {
+    console.log("Added called");
+    //console.log(data);
+    console.log(data.Data);
+
+    this.add(
+      this.state.barcode,
+      this.state.quantity,
+      data.Data.Name,
+      data.Data.Price
+    );
     // this.pushData(this.state.barcode, this.state.quantity);
     this.input1Focus.setFocus();
-    this.setState({ barcode: "", quantity: "" });
-  }
+    //this.setState({ barcode: "", quantity: "" });
+  };
 
   async loadUser(loadAlways: boolean, callback: any) {
     if (loadAlways == false && this.state.customerId != 0) return;
@@ -293,6 +311,8 @@ export class StockDbList extends React.Component {
     );
   }
 
+  getProductInfo(customerId: Number, barcode: string) {}
+
   pushData(data: any, synced: any) {
     const url = format(
       "https://cloud.posmanager.nl/web20/hook/AddStock?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}",
@@ -329,25 +349,42 @@ export class StockDbList extends React.Component {
       });
   }
 
-  add(barcode: string, quantity: string) {
+  add(barcode: string, quantity: string, name: string, price: number) {
     // is text empty?
+    console.log("add called...");
+    console.log(barcode);
+    console.log(quantity);
+    console.log(name);
+    console.log(price);
     if (barcode === null || barcode === "") {
+      console.log("barcode or quantity empty");
       return false;
     }
 
     db.transaction(
       (tx) => {
         tx.executeSql(
-          "insert into items (barcode,quantity,synced) values (?, ?,0)",
-          [barcode, quantity]
+          "insert into items (barcode,quantity,synced,name,price) values (?,?,?,?,?)",
+          [barcode, quantity, 0, name, price],
+          null,
+          (e) => {
+            console.log(e);
+          },
         );
         tx.executeSql(
           "select * from items order by id desc",
           [],
-          (_, { rows }) => console.log(JSON.stringify(rows))
+          (_, { rows }) =>{
+            console.log("committed");
+            console.log(JSON.stringify(rows));
+            this.setState({ barcode: "", quantity: "" });
+          },
+          (er) => {
+              console.log(er);
+            }
         );
       },
-      null,
+      (e) => console.log(e),
       this.update
     );
   }
@@ -370,7 +407,13 @@ export class StockDbList extends React.Component {
           (_, { rows }) => {
             for (let i = 0; i < rows._array.length; i++) {
               let itm = rows._array[i];
-              this.pushData(itm, this.synced);
+              PushToCloud(
+                itm,
+                this.synced,
+                this.state.refNumber,
+                this.state.customerId
+              );
+              // this.pushData(itm, this.synced);
             }
           }
         );
@@ -428,7 +471,7 @@ const styles = StyleSheet.create({
   listArea: {
     backgroundColor: "#EFF5F5",
     flex: 1,
-    paddingTop: 6,
+    paddingTop: 1,
     marginTop: 6,
   },
   sectionContainer: {
@@ -446,8 +489,19 @@ const styles = StyleSheet.create({
     resizeMode: "stretch",
   },
   itemContainer: {
-    flex: 2,
+    flex: 1,
     flexDirection: "row",
-    alignItems: "stretch",
+    alignItems: "center",
+  },
+  itemTemplate: {
+    flex: 4,
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
+  itemPrice: {
+    flex: 2,
+    flexDirection: "column",
+    alignItems: "flex-end",
+    marginRight:5
   },
 });

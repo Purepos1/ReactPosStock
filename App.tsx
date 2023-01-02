@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Image,Button } from 'react-native';
 import { StockDbList } from './components/StockDbList';
-import { useState } from 'react';
+import { Component, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Login } from './components/Login';
@@ -10,7 +10,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Setting} from './components/Setting';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {DrawerContent} from './components/DrawerContent'
-
+import {open} from './BL/database'
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -54,6 +54,7 @@ function Screen2({ navigation }) {
 
 
 export default function App() {
+  open()
   return (
 
     <NavigationContainer>
