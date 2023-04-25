@@ -32,33 +32,6 @@ class UserBL {
     );
   }
 
-  CreateTable(){
-    db.transaction(
-        (tx) => {
-          tx.executeSql(
-            "create table if not exists user (id integer primary key not null,userName text, password text,customerId int,database text);"
-          );
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
-
-  Read()
-  {
-    db.transaction(
-        (tx) => {
-          tx.executeSql(
-            "create table if not exists user (id integer primary key not null,userName text, password text,customerId int,database text);"
-          );
-          console.log("User table create called");
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-  }
 
     getTodoItems = async (db: SQLiteDatabase): Promise<UserModel[]> => {
     try {

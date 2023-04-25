@@ -7,20 +7,15 @@ import {
   TextInput,
   TouchableOpacity,
   ToastAndroid,
-  TouchableWithoutFeedback,
-  Keyboard,
   Alert,
-  Pressable,
 } from "react-native";
-import Constants from "expo-constants";
+
 import * as SQLite from "expo-sqlite";
-import { useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import axios from "axios";
 import { format } from "react-string-format";
 import { SyncModal } from "./SyncModal";
 import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
-import { color } from "react-native-reanimated";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -57,8 +52,6 @@ class Items extends React.Component {
             }}
           >
             <View style={styles.itemContainer}>
-              
-             
               <View style={styles.itemTemplate}>
                 <Text style={{ flex: 1, fontSize: 14 }}>{name}</Text>
                 <Text style={{ flex: 1, fontSize: 12, color: "#CC5500" }}>
@@ -71,7 +64,6 @@ class Items extends React.Component {
                   {price} €
                 </Text>
               </View>
-            
             </View>
           </TouchableOpacity>
         ))}
@@ -136,19 +128,24 @@ export class StockDbList extends React.Component {
   }
 
   componentDidMount() {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "create table if not exists items (id integer primary key not null," +
-          "barcode text, quantity int, synced int, name text, price decimal);"
-      );
-    });
     this.input2Focus.setFocus();
     this.input1Focus.setFocus();
-    this.loadUser(false);
-    console.log("useEffect of StockDbList");
   }
 
   submitItem() {
+
+    if(this.state.quantity =='')
+    {
+      //Quantity cannot be empty!
+      Alert.alert(
+        "Problem",
+        "Hoeveelheid kan niet leeg zijn!"
+      );
+      return;
+    }
+
+    console.log('quantity:'+this.state.quantity);
+
     if (Number(this.state.quantity) > 1000) {
       Alert.alert(
         "Weet je het zeker?",
@@ -178,7 +175,14 @@ export class StockDbList extends React.Component {
   }
 
   addItem() {
-    GetProductInfo(this.state.customerId, this.state.barcode, this.added);
+    this.loadUser(()=>{
+      console.log('loadUser callback');
+      if (this.state.customerId == 0) {
+        Alert.alert("Login", "U moet eerst inloggen");
+        return;
+      }
+      GetProductInfo(this.state.customerId, this.state.barcode, this.added);
+    });
   }
 
   added = (data: any) => {
@@ -197,8 +201,16 @@ export class StockDbList extends React.Component {
     //this.setState({ barcode: "", quantity: "" });
   };
 
-  async loadUser(loadAlways: boolean, callback: any) {
-    if (loadAlways == false && this.state.customerId != 0) return;
+  
+
+  async loadUser(callback: any) {
+    if (this.state.customerId != 0)
+    {
+      console.log('call callback');
+      callback();
+      return;
+    } 
+      
 
     console.log("Load user Called from stockdblist");
     await db.transaction(
@@ -290,16 +302,13 @@ export class StockDbList extends React.Component {
             name="cloud-upload"
             backgroundColor="#4D77FF"
             onPress={() => {
-              this.loadUser(true, () => {
+              this.loadUser(() => {
                 if (this.state.customerId == 0) {
                   Alert.alert("Login", "U moet eerst inloggen");
                   return;
                 }
 
-                console.log("CustomerId below:");
-
-                console.log(this.state.customerId);
-
+                console.log('CustomerId:'+this.state.customerId);
                 this.setState({ modalVisible: true });
               });
             }}
@@ -369,19 +378,19 @@ export class StockDbList extends React.Component {
           null,
           (e) => {
             console.log(e);
-          },
+          }
         );
         tx.executeSql(
           "select * from items order by id desc",
           [],
-          (_, { rows }) =>{
+          (_, { rows }) => {
             console.log("committed");
             console.log(JSON.stringify(rows));
             this.setState({ barcode: "", quantity: "" });
           },
           (er) => {
-              console.log(er);
-            }
+            console.log(er);
+          }
         );
       },
       (e) => console.log(e),
@@ -502,6 +511,6 @@ const styles = StyleSheet.create({
     flex: 2,
     flexDirection: "column",
     alignItems: "flex-end",
-    marginRight:5
+    marginRight: 5,
   },
 });

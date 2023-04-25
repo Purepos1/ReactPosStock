@@ -1,9 +1,22 @@
 {
-    "version": 5,
-    "upgrades": {
-      "to_v2": [["CREATE TABLE IF NOT EXISTS items (id integer primary key not NULL, barcode text, quantity int, synced int);"]],
-          "to_v3": [["ALTER TABLE items ADD column name text;","ALTER TABLE items ADD COLUMN price decimal;"]],
-          "to_v4": [["CREATE TABLE [IF NOT EXISTS] table_name3 column_1 data_type PRIMARY KEY, column_2 data_type NOT NULL, column_3 data_type DEFAULT 0;"]],
-          "to_v5": [["CREATE TABLE [IF NOT EXISTS] table_name4 column_1 data_type PRIMARY KEY, column_2 data_type NOT NULL, column_3 data_type DEFAULT 0;"]]
-    }
+  "version": 3,
+  "upgrades": {
+    "to_v2": [
+      [
+        "CREATE TABLE IF NOT EXISTS version (version integer primary key not NULL);"
+      ],
+      [
+        "CREATE TABLE IF NOT EXISTS items (id integer primary key not NULL, barcode text, quantity int, synced int);"
+      ],
+      [
+        "CREATE TABLE IF NOT EXISTS user (id integer primary key not null,userName text, password text,customerId int,database text);"
+      ],
+      ["insert into version (version) VALUES (1);"]
+    ],
+    "to_v3": [
+      ["ALTER TABLE items ADD column name text;"],
+      ["ALTER TABLE items ADD COLUMN price decimal;"]
+    ]
+    
   }
+}

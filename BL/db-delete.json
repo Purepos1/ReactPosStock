@@ -1,0 +1,1 @@
+{ "deleteTables": [["DROP TABLE IF EXISTS items;"], ["DROP TABLE IF EXISTS user;"],["DROP TABLE IF EXISTS version;"]] }

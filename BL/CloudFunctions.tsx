@@ -15,6 +15,7 @@ export function GetProductInfo(
     customerId,
     barcode
   );
+  console.log(url);
   axios
     .get(url)
     .then(function (response) {

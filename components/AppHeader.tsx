@@ -49,7 +49,6 @@ export function AppHeader(props: any) {
   const [isLogin, setIsLogin] = useState(false);
   const [loginName, setLoginName] = useState("");
   const [database, setDatabase] = useState("");
-  UserDbFunction.CreateTable();
   db.transaction(
     (tx) => {
 

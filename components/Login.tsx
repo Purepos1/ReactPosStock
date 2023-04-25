@@ -55,17 +55,6 @@ export function Login(props: any) {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
-        console.log('delete user from user in login')
-        db.transaction(tx => {
-            console.log('Create table user');
-            console.log('User table dropped');
-            tx.executeSql(
-                "create table if not exists user (id integer primary key not null,userName text, password text,customerId int,database text);"
-            );
-        },
-        err=>{
-            console.log(err);
-        });
 
         db.transaction(tx => {
             console.log('delete table user');
