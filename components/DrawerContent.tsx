@@ -12,14 +12,14 @@ import {
   Switch,
 } from "react-native-paper";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import UserDbFunction from '../BL/UserBL'
+import UserDbFunction from "../BL/UserBL";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import IconM from "react-native-vector-icons/MaterialIcons";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AppHeader } from "./AppHeader";
+import { BLUE, GRAY, WHITE, WHITE_SMOKE } from "../BL/Colors";
 
- function signOut(props:any)
-{
+function signOut(props: any) {
   UserDbFunction.Delete();
   props.navigation.navigate("Scanner");
 }
@@ -27,17 +27,26 @@ import { AppHeader } from "./AppHeader";
 export function DrawerContent(props) {
   return (
     <View style={{ flex: 1 }}>
-      <DrawerContentScrollView {...props}>
+      <DrawerContentScrollView {...props} >
         <View style={styles.drawerContent}>
           <View style={styles.userInfoSection}>
-            <View style={{ flexDirection: "row", marginTop: 15 }}>
-              <Avatar.Image
-                source={{
-                  uri: "https://api.adorable.io/avatars/50/abott@adorable.png",
-                }}
-                size={50}
-              />
-              <View >
+            <View
+              style={{
+                flexDirection: "row",
+                marginTop: 15,
+                alignItems: "center",
+              }}
+            >
+              <View style={styles.circleStyle}>
+                <Avatar.Image
+                  source={{
+                    uri: "https://www.posmanager.nl/wp-content/uploads/2021/08/POSManagerzondercirkels-1.jpg",
+                  }}
+                  size={50}
+                  style={{ margin: 2 }}
+                />
+              </View>
+              <View>
                 <AppHeader component={props.navigation} />
               </View>
             </View>
@@ -80,12 +89,23 @@ export function DrawerContent(props) {
           icon={({ color, size }) => (
             <Icon name="exit-to-app" color={color} size={size} />
           )}
-          label="Sign Out"
+          label="Log out"
           onPress={() => {
             signOut(props);
           }}
         />
       </Drawer.Section>
+      <View
+        style={{
+          alignContent: "center",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom:14,
+        }}
+      >
+        <Text style={{fontSize:11, color:GRAY}}>© 2023 Pos Manager. All rights reserved.</Text>
+      </View>
     </View>
   );
 }
@@ -93,9 +113,16 @@ export function DrawerContent(props) {
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
+    backgroundColor:WHITE,
   },
   userInfoSection: {
     paddingLeft: 20,
+    
+    borderColor:WHITE_SMOKE,
+    borderBottomWidth:1,
+    shadowColor:WHITE_SMOKE,
+    shadowOpacity:10,
+   paddingBottom:12
   },
   title: {
     fontSize: 16,
@@ -126,6 +153,7 @@ const styles = StyleSheet.create({
   bottomDrawerSection: {
     marginBottom: 15,
     borderTopColor: "#f4f4f4",
+    backgroundColor:WHITE,
     borderTopWidth: 1,
   },
   preference: {
@@ -133,5 +161,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     paddingHorizontal: 16,
+  },
+
+  circleStyle: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#478ac9",
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // alignSelf: 'center',
   },
 });

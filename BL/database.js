@@ -22,7 +22,7 @@ export const open = () => {
           console.log("Version:" + results.rows._array[0].version);
         }
         let version = 1;
-        if (results) version = results.rows._array[0].version;
+        if (results.rows._array.length > 0) version = results.rows._array[0].version;
         if (version < dbUpgrade.version) {
           //Call upgrade scripts
           upgradeFrom(db, version);
@@ -48,6 +48,14 @@ const executeQuery = (query, param) => {
     );
   });
 };
+
+export const deleteTables =()=>{
+ const deletescripts = dbDelete.deleteTables;
+
+ deletescripts.forEach(element => {
+  executeQuery(element[0],null);
+ });
+}
 
 export const upgradeFrom = (db, previousVersion) => {
   console.log("upgradeFrom called");

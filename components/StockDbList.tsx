@@ -16,6 +16,7 @@ import axios from "axios";
 import { format } from "react-string-format";
 import { SyncModal } from "./SyncModal";
 import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
+import { BLUE, BLUE_CLOUD, ORANGE, ORANGE_DARK } from "../BL/Colors";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -54,13 +55,13 @@ class Items extends React.Component {
             <View style={styles.itemContainer}>
               <View style={styles.itemTemplate}>
                 <Text style={{ flex: 1, fontSize: 14 }}>{name}</Text>
-                <Text style={{ flex: 1, fontSize: 12, color: "#CC5500" }}>
+                <Text style={{ flex: 1, fontSize: 12, color: ORANGE_DARK }}>
                   Barcode:{barcode}
                 </Text>
               </View>
               <View style={styles.itemPrice}>
                 <Text style={{ flex: 1, fontSize: 14 }}>{quantity}</Text>
-                <Text style={{ flex: 1, fontSize: 12, color: "#CC5500" }}>
+                <Text style={{ flex: 1, fontSize: 12, color: ORANGE_DARK }}>
                   {price} €
                 </Text>
               </View>
@@ -256,13 +257,13 @@ export class StockDbList extends React.Component {
               keyboardType="numeric"
               value={this.state.quantity}
               ref={this.input2Focus.ref}
-              selectionColor={"#3b5998"}
+              selectionColor={BLUE}
               onSubmitEditing={() => this.submitItem()}
             />
             <View style={styles.buttonAdd}>
               <FontAwesome.Button
                 name="long-arrow-right"
-                backgroundColor="#3b5998"
+                backgroundColor={BLUE}
                 onPress={() => this.submitItem()}
               >
                 Opslaan
@@ -293,14 +294,14 @@ export class StockDbList extends React.Component {
             isvisible={this.state.modalVisible}
           />
         )}
-        {this.state.showAlert && <ShowConfirmDialog />}
+       
 
         <View style={{ borderRadius: 0 }}>
           <FontAwesome.Button
             borderRadius={0}
             style={{ alignSelf: "center" }}
             name="cloud-upload"
-            backgroundColor="#4D77FF"
+            backgroundColor={BLUE_CLOUD}
             onPress={() => {
               this.loadUser(() => {
                 if (this.state.customerId == 0) {
@@ -380,6 +381,7 @@ export class StockDbList extends React.Component {
             console.log(e);
           }
         );
+        
         tx.executeSql(
           "select * from items order by id desc",
           [],
@@ -389,6 +391,7 @@ export class StockDbList extends React.Component {
             this.setState({ barcode: "", quantity: "" });
           },
           (er) => {
+            console.log("Error on select items");
             console.log(er);
           }
         );

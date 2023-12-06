@@ -8,6 +8,7 @@ import {
   Title,
   Caption,
 } from "react-native-paper";
+import { ORANGE } from "../BL/Colors";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -23,13 +24,14 @@ export function LoginButton(props: any) {
     >
       <FontAwesome.Button
         name="sign-in"
-        backgroundColor="#fd7e14"
+        style={{paddingHorizontal:15}}
+        backgroundColor={ORANGE}
         onPress={() => {
           console.log("login press called");
           props.navigation.navigate("Profile");
         }}
       >
-        Sign In
+      Login
       </FontAwesome.Button>
     </View>
   );
@@ -38,8 +40,8 @@ export function LoginButton(props: any) {
 export function LogoutButton(props: any) {
   const [loginName, setLoginName] = useState("");
   return (
-    <View style={{ marginLeft: 15, flexDirection: "column" }}>
-      <Title style={styles.title}>{props.name}</Title>
+    <View style={{ marginTop:3, marginLeft: 12, flexDirection: "column" }}>
+      <Title style={styles.title}>Hello {props.name}!</Title>
       <Caption style={styles.caption}>{props.database}</Caption>
     </View>
   );
@@ -54,6 +56,7 @@ export function AppHeader(props: any) {
 
       tx.executeSql("select * from user", [], (_, { rows }) => {
         if (rows._array.length > 0) {
+          console.log(rows._array[0]);
           setIsLogin(true);
           setLoginName(rows._array[0].userName);
           setDatabase(rows._array[0].database);
