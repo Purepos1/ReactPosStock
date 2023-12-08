@@ -8,7 +8,7 @@ import {
   Title,
   Caption,
 } from "react-native-paper";
-import { ORANGE } from "../BL/Colors";
+import { ORANGE, WHITE_SMOKE } from "../BL/Colors";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 3,
     fontWeight: "bold",
+    color:WHITE_SMOKE,
   },
   caption: {
     fontSize: 14,

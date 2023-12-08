@@ -17,7 +17,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import IconM from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AppHeader } from "./AppHeader";
-import { BLUE, GRAY, WHITE, WHITE_SMOKE } from "../BL/Colors";
+import { BLUE, GRAY, ORANGE, RED, WHITE, WHITE_SMOKE } from "../BL/Colors";
 
 function signOut(props: any) {
   UserDbFunction.Delete();
@@ -26,14 +26,17 @@ function signOut(props: any) {
 
 export function DrawerContent(props) {
   return (
-    <View style={{ flex: 1 }}>
-      <DrawerContentScrollView {...props} >
+    
+    <View style={{ flex: 1, backgroundColor:BLUE}}>
+      <DrawerContentScrollView  contentContainerStyle={{flex:1}} {...props} >
+       
         <View style={styles.drawerContent}>
           <View style={styles.userInfoSection}>
             <View
               style={{
                 flexDirection: "row",
-                marginTop: 15,
+                marginTop: 25,
+                marginBottom:15,
                 alignItems: "center",
               }}
             >
@@ -82,7 +85,9 @@ export function DrawerContent(props) {
               }}
             />
           </Drawer.Section>
+       
         </View>
+       
       </DrawerContentScrollView>
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
@@ -101,7 +106,9 @@ export function DrawerContent(props) {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          marginBottom:14,
+          backgroundColor:WHITE,
+          paddingBottom:14,
+          paddingTop:14
         }}
       >
         <Text style={{fontSize:11, color:GRAY}}>© 2023 Pos Manager. All rights reserved.</Text>
@@ -113,63 +120,47 @@ export function DrawerContent(props) {
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
-    backgroundColor:WHITE,
+    backgroundColor:ORANGE,
   },
   userInfoSection: {
     paddingLeft: 20,
-    
     borderColor:WHITE_SMOKE,
     borderBottomWidth:1,
     shadowColor:WHITE_SMOKE,
     shadowOpacity:10,
+    backgroundColor:BLUE,
    paddingBottom:12
   },
   title: {
     fontSize: 16,
     marginTop: 3,
     fontWeight: "bold",
+    backgroundColor:WHITE,
   },
   caption: {
     fontSize: 14,
     lineHeight: 14,
+    backgroundColor:WHITE,
   },
-  row: {
-    marginTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  section: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 15,
-  },
-  paragraph: {
-    fontWeight: "bold",
-    marginRight: 3,
-  },
+
   drawerSection: {
-    marginTop: 15,
+    backgroundColor:WHITE,
+    marginBottom:0,
+    flex:1
+    
   },
   bottomDrawerSection: {
-    marginBottom: 15,
-    borderTopColor: "#f4f4f4",
+    marginBottom:0,
+    borderTopColor: WHITE_SMOKE,
     backgroundColor:WHITE,
     borderTopWidth: 1,
-  },
-  preference: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
   },
 
   circleStyle: {
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#478ac9",
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // alignSelf: 'center',
+    backgroundColor: WHITE_SMOKE
   },
+
 });
