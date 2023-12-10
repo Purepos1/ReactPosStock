@@ -33,7 +33,7 @@ class Items extends React.Component {
   render() {
     const { synced: doneHeading } = this.props;
     const { items } = this.state;
-    const heading = doneHeading ? "Completed" : "Todo";
+    
 
     if (items === null || items.length === 0) {
       return null;
@@ -84,14 +84,7 @@ class Items extends React.Component {
   }
 }
 
-const utilizeFocus = () => {
-  const ref = React.createRef();
-  const setFocus = () => {
-    ref.current && ref.current.focus();
-  };
 
-  return { setFocus, ref };
-};
 
 export class StockDbList extends React.Component {
   state = {
@@ -118,8 +111,6 @@ export class StockDbList extends React.Component {
       this.setState({ refNumber: ref });
       console.log(ref);
       this.syncData(this.state.customerId);
-      this.input1Focus.setFocus();
-      this.setState({ barcode: "", quantity: "" });
     }
   };
 
