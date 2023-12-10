@@ -1,4 +1,4 @@
-import React from "react";
+import  React, {useRef,useEffect} from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -17,6 +17,7 @@ import { format } from "react-string-format";
 import { SyncModal } from "./SyncModal";
 import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
 import { BLUE, BLUE_CLOUD, ORANGE, ORANGE_DARK } from "../BL/Colors";
+import BarcodeAdd from "./BarcodeAdd";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -124,94 +125,20 @@ export class StockDbList extends React.Component {
 
   constructor(props: any) {
     super(props);
-    this.input1Focus = utilizeFocus();
-    this.input2Focus = utilizeFocus();
+    
   }
 
   componentDidMount() {
-    this.input2Focus.setFocus();
-    this.input1Focus.setFocus();
+   
   }
 
-  submitItem() {
-
-    if(this.state.quantity =='')
-    {
-      //Quantity cannot be empty!
-      Alert.alert(
-        "Problem",
-        "Hoeveelheid kan niet leeg zijn!"
-      );
-      return;
-    }
-
-    console.log('quantity:'+this.state.quantity);
-
-    if (Number(this.state.quantity) > 1000) {
-      Alert.alert(
-        "Weet je het zeker?",
-        "Weet u zeker dat u een grote hoeveelheid wilt toevoegen?",
-        [
-          // The "Yes" button
-          {
-            text: "Ja",
-            onPress: () => {
-              this.addItem();
-            },
-          },
-          // The "No" button
-          // Does nothing but dismiss the dialog when tapped
-          {
-            text: "Nee",
-            onPress: () => {
-              this.input2Focus.setFocus();
-              this.setState({ quantity: "" });
-            },
-          },
-        ]
-      );
-    } else {
-      this.addItem();
-    }
-  }
-
-  addItem() {
-    this.loadUser(()=>{
-      console.log('loadUser callback');
-      if (this.state.customerId == 0) {
-        Alert.alert("Login", "U moet eerst inloggen");
-        return;
-      }
-      GetProductInfo(this.state.customerId, this.state.barcode, this.added);
-    });
-  }
-
-  added = (data: any) => {
-    console.log("Added called");
-    //console.log(data);
-    console.log(data.Data);
-
-    this.add(
-      this.state.barcode,
-      this.state.quantity,
-      data.Data.Name,
-      data.Data.Price
-    );
-    // this.pushData(this.state.barcode, this.state.quantity);
-    this.input1Focus.setFocus();
-    //this.setState({ barcode: "", quantity: "" });
-  };
-
-  
 
   async loadUser(callback: any) {
-    if (this.state.customerId != 0)
-    {
-      console.log('call callback');
+    if (this.state.customerId != 0) {
+      console.log("call callback");
       callback();
       return;
-    } 
-      
+    }
 
     console.log("Load user Called from stockdblist");
     await db.transaction(
@@ -235,42 +162,7 @@ export class StockDbList extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {/* <TabbedBarcodeEnterance/> */}
-        <View style={styles.editPart}>
-          <View style={styles.flexRow}>
-            <TextInput
-              onChangeText={(text) => this.setState({ barcode: text })}
-              placeholder="Scan Barcode"
-              style={styles.input}
-              value={this.state.barcode}
-              autoFocus={true}
-              ref={this.input1Focus.ref}
-              returnKeyType="next"
-              selectionColor={"#3b5998"}
-              onSubmitEditing={() => this.input2Focus.setFocus()}
-            />
-
-            <TextInput
-              onChangeText={(qty) => this.setState({ quantity: qty })}
-              placeholder="Voer aantal in"
-              style={styles.input}
-              keyboardType="numeric"
-              value={this.state.quantity}
-              ref={this.input2Focus.ref}
-              selectionColor={BLUE}
-              onSubmitEditing={() => this.submitItem()}
-            />
-            <View style={styles.buttonAdd}>
-              <FontAwesome.Button
-                name="long-arrow-right"
-                backgroundColor={BLUE}
-                onPress={() => this.submitItem()}
-              >
-                Opslaan
-              </FontAwesome.Button>
-            </View>
-          </View>
-        </View>
+        <BarcodeAdd parentComponent={this} />
 
         <ScrollView style={styles.listArea}>
           <Items
@@ -294,7 +186,6 @@ export class StockDbList extends React.Component {
             isvisible={this.state.modalVisible}
           />
         )}
-       
 
         <View style={{ borderRadius: 0 }}>
           <FontAwesome.Button
@@ -309,7 +200,7 @@ export class StockDbList extends React.Component {
                   return;
                 }
 
-                console.log('CustomerId:'+this.state.customerId);
+                console.log("CustomerId:" + this.state.customerId);
                 this.setState({ modalVisible: true });
               });
             }}
@@ -320,8 +211,6 @@ export class StockDbList extends React.Component {
       </View>
     );
   }
-
-  getProductInfo(customerId: Number, barcode: string) {}
 
   pushData(data: any, synced: any) {
     const url = format(
@@ -360,12 +249,7 @@ export class StockDbList extends React.Component {
   }
 
   add(barcode: string, quantity: string, name: string, price: number) {
-    // is text empty?
-    console.log("add called...");
-    console.log(barcode);
-    console.log(quantity);
-    console.log(name);
-    console.log(price);
+
     if (barcode === null || barcode === "") {
       console.log("barcode or quantity empty");
       return false;
@@ -381,7 +265,7 @@ export class StockDbList extends React.Component {
             console.log(e);
           }
         );
-        
+
         tx.executeSql(
           "select * from items order by id desc",
           [],
@@ -442,44 +326,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF5F5",
     flex: 9,
   },
-  editPart: {
-    backgroundColor: "#EFF5F5",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    borderColor: "gray",
-    padding: 0,
-    paddingTop: 5,
-    paddingBottom: 0,
-  },
+ 
 
-  buttonAdd: {
-    margin: 6,
-    height: 50,
-  },
 
-  heading: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  flexRow: {
-    flexDirection: "column",
-  },
-  input: {
-    borderColor: "#C4D7E0",
-    backgroundColor: "#fff",
-    borderRadius: 4,
-    borderWidth: 1,
-    height: 40,
-    margin: 6,
-    padding: 10,
-  },
   listArea: {
     backgroundColor: "#EFF5F5",
     flex: 1,
@@ -490,16 +339,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginHorizontal: 6,
   },
-  sectionHeading: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  image: {
-    marginVertical: 16,
-    height: 40,
-    width: "50%",
-    resizeMode: "stretch",
-  },
+
   itemContainer: {
     flex: 1,
     flexDirection: "row",

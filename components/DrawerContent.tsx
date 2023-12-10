@@ -1,21 +1,14 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import {
-  useTheme,
   Avatar,
-  Title,
-  Caption,
-  Paragraph,
   Drawer,
   Text,
-  TouchableRipple,
-  Switch,
 } from "react-native-paper";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import UserDbFunction from "../BL/UserBL";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import IconM from "react-native-vector-icons/MaterialIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AppHeader } from "./AppHeader";
 import { BLUE, GRAY, ORANGE, RED, WHITE, WHITE_SMOKE } from "../BL/Colors";
 

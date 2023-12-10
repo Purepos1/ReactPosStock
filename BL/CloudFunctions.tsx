@@ -8,8 +8,13 @@ const db = SQLite.openDatabase("db.db");
 export function GetProductInfo(
   customerId:any,
   barcode:any,
-  added:any
+  added:any,
+  failedFunc:any
 ) {
+  console.log("GetProductInfo CustomerUd:");
+  console.log(customerId);
+  console.log("GetProductInfo barcode:");
+  console.log(barcode);
   const url = format(
     "https://cloud.posmanager.nl/web20/hook/getproductinfo?customerid={0}&barcode={1}",
     customerId,
@@ -27,6 +32,7 @@ export function GetProductInfo(
           "Problem",
           response.data.Message
         );
+        failedFunc();
       }
     })
     .catch(function (error) {
