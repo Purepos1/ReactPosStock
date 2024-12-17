@@ -103,24 +103,26 @@ const BarcodeAdd = ({ parentComponent }: any) => {
           onSubmitEditing={() => txtQuantityRef.current.focus()}
         />
 
-        <TextInput
-          onChangeText={(qty) => setQuantity(qty)}
-          placeholder="Voer aantal in"
-          style={styles.input}
-          keyboardType="numeric"
-          value={quantity}
-          ref={txtQuantityRef}
-          selectionColor={BLUE}
-          onSubmitEditing={() => submitItem()}
-        />
-        <View style={styles.buttonAdd}>
-          <FontAwesome.Button
-            name="long-arrow-right"
-            backgroundColor={BLUE}
-            onPress={() => submitItem()}
-          >
-            Opslaan
-          </FontAwesome.Button>
+        <View style={{ flexDirection: "row", justifyContent:'center', alignItems:'center', paddingBottom:10 }}>
+          <TextInput
+            onChangeText={(qty) => setQuantity(qty)}
+            placeholder="Voer aantal in"
+            style={styles.inputBarcode}
+            keyboardType="numeric"
+            value={quantity}
+            ref={txtQuantityRef}
+            selectionColor={BLUE}
+            onSubmitEditing={() => submitItem()}
+          />
+          <View style={styles.buttonAdd}>
+            <FontAwesome.Button
+              name="long-arrow-right"
+              backgroundColor={BLUE}
+              onPress={() => submitItem()}
+            >
+              Opslaan
+            </FontAwesome.Button>
+          </View>
         </View>
       </View>
     </View>
@@ -146,11 +148,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
 
-  buttonAdd: {
-    margin: 6,
-    height: 50,
-  },
-
   flexRow: {
     flexDirection: "column",
   },
@@ -162,5 +159,23 @@ const styles = StyleSheet.create({
     height: 40,
     margin: 6,
     padding: 10,
+   
+  },
+
+  inputBarcode: {
+    borderColor: "#C4D7E0",
+    backgroundColor: "#fff",
+    borderRadius: 4,
+    borderWidth: 1,
+    height: 40,
+    margin: 6,
+    padding: 10,
+    flex:2,
+    alignItems:'center'
+  },
+
+  buttonAdd: {
+    alignItems:'center',
+    marginEnd:6,
   },
 });

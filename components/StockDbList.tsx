@@ -18,6 +18,7 @@ import { SyncModal } from "./SyncModal";
 import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
 import { BLUE, BLUE_CLOUD, ORANGE, ORANGE_DARK } from "../BL/Colors";
 import BarcodeAdd from "./BarcodeAdd";
+import Total from "./Total";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -153,6 +154,7 @@ export class StockDbList extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+
         <BarcodeAdd parentComponent={this} />
 
         <ScrollView style={styles.listArea}>
