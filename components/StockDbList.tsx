@@ -1,4 +1,4 @@
-import  React, {useRef,useEffect} from "react";
+import React, { useRef, useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -34,7 +34,6 @@ class Items extends React.Component {
   render() {
     const { synced: doneHeading } = this.props;
     const { items } = this.state;
-    
 
     if (items === null || items.length === 0) {
       return null;
@@ -85,8 +84,6 @@ class Items extends React.Component {
   }
 }
 
-
-
 export class StockDbList extends React.Component {
   state = {
     barcode: "",
@@ -110,37 +107,33 @@ export class StockDbList extends React.Component {
     } else {
       this.setState({ modalVisible: false });
       this.setState({ refNumber: ref });
-      console.log(ref);
+      //console.log(ref);
       this.syncData(this.state.customerId);
     }
   };
 
   constructor(props: any) {
     super(props);
-    
   }
 
-  componentDidMount() {
-   
-  }
-
+  componentDidMount() {}
 
   async loadUser(callback: any) {
     if (this.state.customerId != 0) {
-      console.log("call callback");
+      //console.log("call callback");
       callback();
       return;
     }
 
-    console.log("Load user Called from stockdblist");
+    //console.log("Load user Called from stockdblist");
     await db.transaction(
       (tx) => {
         tx.executeSql("select * from user", [], (_, { rows }) => {
           if (rows._array.length > 0) {
-            console.log(JSON.stringify(rows));
-            console.log(rows._array[0].id);
-            console.log(rows._array[0].customerId);
-            this.setState({ customerId: rows._array[0].customerId });
+            //console.log(JSON.stringify(rows));
+            //console.log(rows._array[0].id);
+            //console.log(rows._array[0].customerId);
+            //this.setState({ customerId: rows._array[0].customerId });
           } else {
             this.setState({ customerId: 0 });
           }
@@ -154,7 +147,6 @@ export class StockDbList extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-
         <BarcodeAdd parentComponent={this} />
 
         <ScrollView style={styles.listArea}>
@@ -242,38 +234,55 @@ export class StockDbList extends React.Component {
   }
 
   add(barcode: string, quantity: string, name: string, price: number) {
-
     if (barcode === null || barcode === "") {
       console.log("barcode or quantity empty");
       return false;
     }
 
+    console.log("add - before transaction");
+
     db.transaction(
       (tx) => {
+        // Insert query
         tx.executeSql(
-          "insert into items (barcode,quantity,synced,name,price) values (?,?,?,?,?)",
+          "insert into items (barcode, quantity, synced, name, price) values (?,?,?,?,?)",
           [barcode, quantity, 0, name, price],
-          null,
-          (e) => {
-            console.log(e);
-          }
-        );
+          // Success callback
+          (tx, result) => {
+            console.log("Insert successful", result);
 
-        tx.executeSql(
-          "select * from items order by id desc",
-          [],
-          (_, { rows }) => {
-            console.log("committed");
-            console.log(JSON.stringify(rows));
-            this.setState({ barcode: "", quantity: "" });
+            // select
+            tx.executeSql(
+              "select * from items order by id desc",
+              [],
+              // Success callback for select
+              (_, { rows }) => {
+                console.log("Committed");
+                console.log(JSON.stringify(rows));
+
+                this.setState({ barcode: "", quantity: "" });
+
+                this.update();
+              },
+              // Error callback for select
+              (tx, er) => {
+                console.log("Error on select items");
+                console.log(er);
+                return false;
+              }
+            );
           },
-          (er) => {
-            console.log("Error on select items");
+          // Error callback for insert
+          (tx, er) => {
+            console.log("Error on insert");
             console.log(er);
+            return false;
           }
         );
       },
-      (e) => console.log(e),
+      // Transaction error callback
+      (e) => console.log("Transaction error", e),
+      // Optional completion callback for the transaction
       this.update
     );
   }
@@ -319,8 +328,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF5F5",
     flex: 9,
   },
- 
-
 
   listArea: {
     backgroundColor: "#EFF5F5",

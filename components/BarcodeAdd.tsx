@@ -1,26 +1,44 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React, { useState, useRef, useEffect } from "react";
-import { View, StyleSheet, TextInput, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from "react-native";
 import { BLUE } from "../BL/Colors";
 import { GetProductInfo } from "../BL/CloudFunctions";
+import { StockDbList } from "./StockDbList";
+import ProductSearchScreen from "./ProductSearchScreen";
+import { Modal } from "react-native";
+import { isLoggedIn, userStore } from "../stores/userStore";
+import NetInfo from "@react-native-community/netinfo";
 
-const BarcodeAdd = ({ parentComponent }: any) => {
-  const txtBarcodeRef = useRef(null);
-  const txtQuantityRef = useRef(null);
+type Props = {
+  parentComponent: StockDbList;
+};
+
+const BarcodeAdd = ({ parentComponent }: Props) => {
+  const txtBarcodeRef = useRef<TextInput>(null);
+  const txtQuantityRef = useRef<TextInput>(null);
   const [barcode, setBarcode] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [productSearchModalVisible, setProductSearchModalVisible] =
+    useState(false);
+  const [connectionStatus, setConnectionStatus] = useState("Not checked yet");
 
   const submitItem = () => {
     if (barcode == undefined || barcode == "") {
       //Quantity cannot be empty!
       Alert.alert("Problem", "Barcode kan niet leeg zijn!");
-      txtBarcodeRef.current.focus();
+      txtBarcodeRef.current?.focus();
       return;
     }
     if (quantity == undefined || quantity == "") {
       //Quantity cannot be empty!
       Alert.alert("Problem", "Hoeveelheid kan niet leeg zijn!");
-      txtQuantityRef.current.focus();
+      txtQuantityRef.current?.focus();
       return;
     }
 
@@ -41,7 +59,7 @@ const BarcodeAdd = ({ parentComponent }: any) => {
           {
             text: "Nee",
             onPress: () => {
-              txtBarcodeRef.current.focus();
+              txtBarcodeRef.current?.focus();
               setQuantity("");
             },
           },
@@ -54,34 +72,45 @@ const BarcodeAdd = ({ parentComponent }: any) => {
 
   const added = (data: any) => {
     parentComponent.add(barcode, quantity, data.Data.Name, data.Data.Price);
-    txtBarcodeRef.current.focus();
+    txtBarcodeRef.current?.focus();
     setBarcode("");
     setQuantity("");
   };
 
   const clearBarcode = () => {
-    txtBarcodeRef.current.focus();
+    txtBarcodeRef.current?.focus();
     setBarcode("");
   };
 
-  const addItem = () => {
-    parentComponent.loadUser(() => {
-      console.log("loadUser callback");
-      if (
-        parentComponent.state.customerId == undefined ||
-        parentComponent.state.customerId == 0
-      ) {
-        Alert.alert("Login", "U moet eerst inloggen");
-        return;
-      }
+  const addItem = async () => {
+    const state = await NetInfo.fetch();
 
-      GetProductInfo(
-        parentComponent.state.customerId,
-        barcode,
-        added,
-        clearBarcode
-      );
-    });
+    if (state.isConnected) {
+      parentComponent.loadUser(() => {
+        if (!isLoggedIn()) {
+          Alert.alert("Login", "U moet eerst inloggen");
+          return;
+        }
+
+        console.log(
+          "BarcodeAdd.addItem - ",
+          userStore.value.customerId,
+          barcode,
+          added,
+          clearBarcode
+        );
+
+        GetProductInfo(
+          userStore.value.customerId,
+          barcode,
+          added,
+          clearBarcode
+        );
+      });
+    } else {
+      //offline scan
+      added({ Data: { Name: "offline gescand", Price: Number(0) } });
+    }
   };
 
   useEffect(() => {
@@ -91,19 +120,66 @@ const BarcodeAdd = ({ parentComponent }: any) => {
   return (
     <View style={styles.editPart}>
       <View style={styles.flexRow}>
-        <TextInput
-          onChangeText={(text) => setBarcode(text)}
-          placeholder="Scan Barcode"
-          style={styles.input}
-          value={barcode}
-          autoFocus={true}
-          ref={txtBarcodeRef}
-          returnKeyType="next"
-          selectionColor={"#3b5998"}
-          onSubmitEditing={() => txtQuantityRef.current.focus()}
-        />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingBottom: 10,
+            paddingRight: 5,
+          }}
+        >
+          <TextInput
+            onChangeText={(text) => setBarcode(text)}
+            placeholder="Scan Barcode"
+            style={styles.inputBarcode}
+            value={barcode}
+            autoFocus={true}
+            ref={txtBarcodeRef}
+            returnKeyType="next"
+            selectionColor={"#3b5998"}
+            onSubmitEditing={() => txtQuantityRef.current?.focus()}
+          />
+          <TouchableOpacity
+            onPress={async () => {
+              if (!isLoggedIn()) {
+                Alert.alert("Login", "U moet eerst inloggen");
+                return;
+              }
 
-        <View style={{ flexDirection: "row", justifyContent:'center', alignItems:'center', paddingBottom:10 }}>
+              const state = await NetInfo.fetch();
+
+              if (!state.isConnected) {
+                Alert.alert(
+                  "Problem",
+                  "Deze bewerking werkt alleen terwijl u online bent"
+                );
+                return;
+              }
+
+              setProductSearchModalVisible(true);
+            }}
+            style={{
+              backgroundColor: BLUE,
+              padding: 10,
+              borderRadius: 5,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <FontAwesome name="filter" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingBottom: 10,
+            paddingRight: 5,
+          }}
+        >
           <TextInput
             onChangeText={(qty) => setQuantity(qty)}
             placeholder="Voer aantal in"
@@ -114,17 +190,40 @@ const BarcodeAdd = ({ parentComponent }: any) => {
             selectionColor={BLUE}
             onSubmitEditing={() => submitItem()}
           />
-          <View style={styles.buttonAdd}>
-            <FontAwesome.Button
-              name="long-arrow-right"
-              backgroundColor={BLUE}
-              onPress={() => submitItem()}
-            >
+          <TouchableOpacity
+            onPress={() => submitItem()}
+            style={{
+              backgroundColor: BLUE,
+              padding: 10,
+              borderRadius: 5,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <FontAwesome name="long-arrow-right" size={24} color="white">
+              {" "}
               Opslaan
-            </FontAwesome.Button>
-          </View>
+            </FontAwesome>
+          </TouchableOpacity>
         </View>
       </View>
+
+      <Modal
+        visible={productSearchModalVisible}
+        animationType="slide"
+        onRequestClose={() => setProductSearchModalVisible(false)}
+      >
+        <ProductSearchScreen
+          parentComponent={parentComponent}
+          onClose={(selectedProduct: Product | null) => {
+            setProductSearchModalVisible(false);
+
+            if (selectedProduct) {
+              setBarcode(selectedProduct.barcode);
+            }
+          }}
+        />
+      </Modal>
     </View>
   );
 };
@@ -156,10 +255,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 4,
     borderWidth: 1,
-    height: 40,
+    height: 44,
     margin: 6,
     padding: 10,
-   
   },
 
   inputBarcode: {
@@ -167,15 +265,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 4,
     borderWidth: 1,
-    height: 40,
+    height: 44,
     margin: 6,
     padding: 10,
-    flex:2,
-    alignItems:'center'
+    flex: 2,
+    alignItems: "center",
   },
 
   buttonAdd: {
-    alignItems:'center',
-    marginEnd:6,
+    alignItems: "center",
+    marginEnd: 6,
   },
 });

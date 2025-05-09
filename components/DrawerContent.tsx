@@ -1,10 +1,7 @@
 import React from "react";
+import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { View, StyleSheet } from "react-native";
-import {
-  Avatar,
-  Drawer,
-  Text,
-} from "react-native-paper";
+import { Avatar, Drawer, Text } from "react-native-paper";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import UserDbFunction from "../BL/UserBL";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -17,19 +14,17 @@ function signOut(props: any) {
   props.navigation.navigate("Scanner");
 }
 
-export function DrawerContent(props) {
+export function DrawerContent(props: DrawerContentComponentProps) {
   return (
-    
-    <View style={{ flex: 1, backgroundColor:BLUE}}>
-      <DrawerContentScrollView  contentContainerStyle={{flex:1}} {...props} >
-       
+    <View style={{ flex: 1, backgroundColor: BLUE }}>
+      <DrawerContentScrollView contentContainerStyle={{ flex: 1 }} {...props}>
         <View style={styles.drawerContent}>
           <View style={styles.userInfoSection}>
             <View
               style={{
                 flexDirection: "row",
                 marginTop: 25,
-                marginBottom:15,
+                marginBottom: 15,
                 alignItems: "center",
               }}
             >
@@ -78,9 +73,7 @@ export function DrawerContent(props) {
               }}
             />
           </Drawer.Section>
-       
         </View>
-       
       </DrawerContentScrollView>
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
@@ -99,12 +92,14 @@ export function DrawerContent(props) {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor:WHITE,
-          paddingBottom:14,
-          paddingTop:14
+          backgroundColor: WHITE,
+          paddingBottom: 14,
+          paddingTop: 14,
         }}
       >
-        <Text style={{fontSize:11, color:GRAY}}>© 2023 Pos Manager. All rights reserved.</Text>
+        <Text style={{ fontSize: 11, color: GRAY }}>
+          © 2023 Pos Manager. All rights reserved.
+        </Text>
       </View>
     </View>
   );
@@ -113,39 +108,38 @@ export function DrawerContent(props) {
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
-    backgroundColor:ORANGE,
+    backgroundColor: ORANGE,
   },
   userInfoSection: {
     paddingLeft: 20,
-    borderColor:WHITE_SMOKE,
-    borderBottomWidth:1,
-    shadowColor:WHITE_SMOKE,
-    shadowOpacity:10,
-    backgroundColor:BLUE,
-   paddingBottom:12
+    borderColor: WHITE_SMOKE,
+    borderBottomWidth: 1,
+    shadowColor: WHITE_SMOKE,
+    shadowOpacity: 10,
+    backgroundColor: BLUE,
+    paddingBottom: 12,
   },
   title: {
     fontSize: 16,
     marginTop: 3,
     fontWeight: "bold",
-    backgroundColor:WHITE,
+    backgroundColor: WHITE,
   },
   caption: {
     fontSize: 14,
     lineHeight: 14,
-    backgroundColor:WHITE,
+    backgroundColor: WHITE,
   },
 
   drawerSection: {
-    backgroundColor:WHITE,
-    marginBottom:0,
-    flex:1
-    
+    backgroundColor: WHITE,
+    marginBottom: 0,
+    flex: 1,
   },
   bottomDrawerSection: {
-    marginBottom:0,
+    marginBottom: 0,
     borderTopColor: WHITE_SMOKE,
-    backgroundColor:WHITE,
+    backgroundColor: WHITE,
     borderTopWidth: 1,
   },
 
@@ -153,7 +147,6 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: WHITE_SMOKE
+    backgroundColor: WHITE_SMOKE,
   },
-
 });

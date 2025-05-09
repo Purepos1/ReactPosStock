@@ -5,7 +5,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Keyboard } from "react-native";
 import * as SQLite from "expo-sqlite";
 import { Alert } from "react-native";
-import {ORANGE,ORANGE_DARK} from "../BL/Colors";
+import { ORANGE, ORANGE_DARK } from "../BL/Colors";
+import { setUser, clearUser } from "../stores/userStore";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -29,6 +30,8 @@ function add(
 
   console.log(userName);
   console.log("!!! delete  user from Login add");
+
+  setUser(userName, password, customerId, database);
 
   db.transaction(
     (tx) => {
@@ -66,9 +69,11 @@ export function Login(props: any) {
       setHasPermission(status === "granted");
     })();
 
+    clearUser();
+
     db.transaction(
       (tx) => {
-        console.log("delete table user");
+        console.log("delete table user !!!");
         tx.executeSql("delete from user");
       },
       (err) => {

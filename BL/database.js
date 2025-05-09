@@ -8,28 +8,36 @@ export const open = () => {
   console.log("open called");
   db.transaction((tx) => {
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS version (version integer primary key not NULL);"
-    );
-    // tx.executeSql("CREATE UNIQUE INDEX NOT EXISTS ix_version ON Version (version);")
-    tx.executeSql(
-      "SELECT version FROM version order by version desc LIMIT 1;",
+      "CREATE TABLE IF NOT EXISTS version (version integer primary key not NULL);",
       [],
-      (trans, results) => {
-        console.log(JSON.stringify(results));
-        if (results.rows._array.length == 0) {
-          console.log("Version table is empty.");
-        } else {
-          console.log("Version:" + results.rows._array[0].version);
-        }
-        let version = 1;
-        if (results.rows._array.length > 0) version = results.rows._array[0].version;
-        if (version < dbUpgrade.version) {
-          //Call upgrade scripts
-          upgradeFrom(db, version);
-        }
+      () => {
+        console.log("version Table created or already exists.");
+
+        tx.executeSql(
+          "SELECT version FROM version ORDER BY version DESC LIMIT 1;",
+          [],
+          (trans, results) => {
+            console.log(JSON.stringify(results));
+
+            let version = 1;
+            if (results.rows._array.length === 0) {
+              console.log("Version table is empty.");
+            } else {
+              version = results.rows._array[0].version;
+              console.log("Version: " + version);
+            }
+
+            if (version < dbUpgrade.version) {
+              upgradeFrom(db, version);
+            }
+          }
+        );
+      },
+      (_, error) => {
+        console.log("Error creating table:", error);
+        return true; // returning true rolls back the transaction
       }
     );
-    (transaction, error) => console.log(error);
   });
 };
 
@@ -49,13 +57,13 @@ const executeQuery = (query, param) => {
   });
 };
 
-export const deleteTables =()=>{
- const deletescripts = dbDelete.deleteTables;
+export const deleteTables = () => {
+  const deletescripts = dbDelete.deleteTables;
 
- deletescripts.forEach(element => {
-  executeQuery(element[0],null);
- });
-}
+  deletescripts.forEach((element) => {
+    executeQuery(element[0], null);
+  });
+};
 
 export const upgradeFrom = (db, previousVersion) => {
   console.log("upgradeFrom called");
