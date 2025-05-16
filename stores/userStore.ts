@@ -1,6 +1,6 @@
 import { signal } from "@preact/signals-react";
 
-export const userStore = signal({
+export const userStore = signal<User>({
   userName: "",
   password: "",
   customerId: 0,

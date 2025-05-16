@@ -44,14 +44,24 @@ export function PushToCloud(
   data: any,
   synced: any,
   refNumber: any,
-  customerId: any
+  customerId: any,
+  resolve?: (value: void | PromiseLike<void>) => void
 ) {
+  console.log("data", data);
+
+  const date =
+    data && data.createdDate ? data.createdDate : new Date().toISOString();
+
+  console.log("data", data, date);
+
   const url = format(
-    "https://cloud.posmanager.nl/web20/hook/AddStock?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}",
+    "https://cloud.posmanager.nl/web20/hook/addstockv2?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}&createdDate={4}",
+    //"http://192.168.1.187:59387/hook/addstockv2?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}&createdDate={4}",
     data.barcode,
     data.quantity,
     refNumber,
-    customerId
+    customerId,
+    date
   );
   axios
     .get(url)
@@ -65,19 +75,23 @@ export function PushToCloud(
           undefined, // Pass `undefined` if you don't want to handle the error:
           synced
         );
+        console.log(`'id: ${data.id} finished successfully`);
       } else {
-        Alert.alert(
-          "Problem",
-          "Er is een probleem opgetreden probeer het opnieuw!"
-        );
+        // Alert.alert(
+        //   "Problem",
+        //   "Er is een probleem opgetreden probeer het opnieuw!"
+        // );
+        console.log("error", response);
+        resolve && resolve();
       }
     })
     .catch(function (error) {
-      Alert.alert(
-        "Problem",
-        "Er is een probleem opgetreden probeer het opnieuw!"
-      );
+      // Alert.alert(
+      //   "Problem",
+      //   "Er is een probleem opgetreden probeer het opnieuw!"
+      // );
       console.log("Error :" + error.response.data);
+      resolve && resolve();
     });
 }
 

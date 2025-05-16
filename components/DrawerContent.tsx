@@ -8,9 +8,11 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import IconM from "react-native-vector-icons/MaterialIcons";
 import { AppHeader } from "./AppHeader";
 import { BLUE, GRAY, ORANGE, RED, WHITE, WHITE_SMOKE } from "../BL/Colors";
+import { clearUser } from "../stores/userStore";
 
 function signOut(props: any) {
   UserDbFunction.Delete();
+  clearUser();
   props.navigation.navigate("Scanner");
 }
 

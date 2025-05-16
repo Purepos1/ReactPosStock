@@ -4,27 +4,51 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   ToastAndroid,
   Alert,
+  Modal,
 } from "react-native";
 
-import * as SQLite from "expo-sqlite";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import axios from "axios";
-import { format } from "react-string-format";
 import { SyncModal } from "./SyncModal";
 import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
 import { BLUE, BLUE_CLOUD, ORANGE, ORANGE_DARK } from "../BL/Colors";
 import BarcodeAdd from "./BarcodeAdd";
-import Total from "./Total";
+import { clearUser, isLoggedIn, setUser, userStore } from "../stores/userStore";
+import { Semaphore } from "../Utils/semaphore";
+import {
+  selectAllItems,
+  insertItem,
+  updateItem,
+  checkIfBarcodeExists,
+  deleteItem,
+  selectUser,
+} from "../Utils/sqlHelper";
+import { confirmAsync } from "../Utils/confirm";
 
-const db = SQLite.openDatabase("db.db");
+interface ItemsProps {
+  onPressItem?: (id: string) => void;
+  onTotalChanged?: (totalCount: number) => void;
+}
 
-class Items extends React.Component {
-  state = {
+interface ScannedListItem {
+  id: string;
+  barcode: string;
+  quantity: number;
+  name: string;
+  price: number;
+}
+
+interface ItemsState {
+  items: ScannedListItem[] | null;
+  totalCount: number;
+}
+
+class Items extends React.Component<ItemsProps, ItemsState> {
+  state: ItemsState = {
     items: null,
+    totalCount: 0,
   };
 
   componentDidMount() {
@@ -32,8 +56,7 @@ class Items extends React.Component {
   }
 
   render() {
-    const { synced: doneHeading } = this.props;
-    const { items } = this.state;
+    const { items }: { items: ScannedListItem[] | null } = this.state;
 
     if (items === null || items.length === 0) {
       return null;
@@ -41,7 +64,7 @@ class Items extends React.Component {
 
     return (
       <View style={styles.sectionContainer}>
-        {items.map(({ id, barcode, quantity, synced, name, price }) => (
+        {items.map(({ id, barcode, quantity, name, price }) => (
           <TouchableOpacity
             key={id}
             onLongPress={() =>
@@ -73,28 +96,30 @@ class Items extends React.Component {
     );
   }
 
-  update() {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from items order by id desc;",
-        [],
-        (_, { rows: { _array } }) => this.setState({ items: _array })
-      );
-    });
+  async update() {
+    const rows = await selectAllItems();
+
+    this.setState({ items: rows });
+    this.state.totalCount = rows.length;
+    this.props.onTotalChanged &&
+      this.props.onTotalChanged(this.state.totalCount);
   }
 }
 
 export class StockDbList extends React.Component {
+  private itmsRef = React.createRef<Items>();
+
   state = {
     barcode: "",
     quantity: "",
     onSubmit: null,
-    customerId: 0,
     modalVisible: false,
     refNumber: "",
     input2Focus: null,
     showAlert: false,
     quantityRejected: false,
+    succeededCount: 0,
+    totalCount: 0,
   };
 
   hideModal = () => {
@@ -105,10 +130,8 @@ export class StockDbList extends React.Component {
     if (ref == "") {
       Alert.alert("Informatie", "Geef hier uw referentie in");
     } else {
-      this.setState({ modalVisible: false });
       this.setState({ refNumber: ref });
-      //console.log(ref);
-      this.syncData(this.state.customerId);
+      this.syncData();
     }
   };
 
@@ -119,29 +142,22 @@ export class StockDbList extends React.Component {
   componentDidMount() {}
 
   async loadUser(callback: any) {
-    if (this.state.customerId != 0) {
+    if (userStore.value.customerId != 0) {
       //console.log("call callback");
       callback();
       return;
     }
 
-    //console.log("Load user Called from stockdblist");
-    await db.transaction(
-      (tx) => {
-        tx.executeSql("select * from user", [], (_, { rows }) => {
-          if (rows._array.length > 0) {
-            //console.log(JSON.stringify(rows));
-            //console.log(rows._array[0].id);
-            //console.log(rows._array[0].customerId);
-            //this.setState({ customerId: rows._array[0].customerId });
-          } else {
-            this.setState({ customerId: 0 });
-          }
-        });
-      },
-      null,
-      callback
-    );
+    const user = await selectUser();
+
+    if (user) {
+      setUser(user.userName, user.password, user.customerId, user.database);
+      console.log("loadUser, load user from db", user);
+    } else {
+      clearUser();
+    }
+
+    callback && callback();
   }
 
   render() {
@@ -151,26 +167,32 @@ export class StockDbList extends React.Component {
 
         <ScrollView style={styles.listArea}>
           <Items
-            ref={(itms) => (this.itms = itms)}
-            onPressItem={(id) =>
-              db.transaction(
-                (tx) => {
-                  tx.executeSql(`delete from items where id = ?;`, [id]);
-                },
-                null,
-                this.update
-              )
-            }
+            ref={this.itmsRef}
+            onPressItem={async (id: string) => {
+              console.log("deleting id", id);
+              await deleteItem({ id });
+              this.update();
+            }}
+            onTotalChanged={(tcount: number) => {
+              this.setState({ totalCount: tcount });
+            }}
           />
         </ScrollView>
 
-        {this.state.modalVisible && (
+        <Modal
+          visible={this.state.modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => this.setState({ modalVisible: false })}
+        >
           <SyncModal
             onDoneFunction={this.startSync}
             onCancel={this.hideModal}
             isvisible={this.state.modalVisible}
+            succeededCount={this.state.succeededCount}
+            totalCount={this.state.totalCount}
           />
-        )}
+        </Modal>
 
         <View style={{ borderRadius: 0 }}>
           <FontAwesome.Button
@@ -180,12 +202,12 @@ export class StockDbList extends React.Component {
             backgroundColor={BLUE_CLOUD}
             onPress={() => {
               this.loadUser(() => {
-                if (this.state.customerId == 0) {
+                if (!isLoggedIn()) {
                   Alert.alert("Login", "U moet eerst inloggen");
                   return;
                 }
 
-                console.log("CustomerId:" + this.state.customerId);
+                console.log("CustomerId:" + userStore.value.customerId);
                 this.setState({ modalVisible: true });
               });
             }}
@@ -197,94 +219,46 @@ export class StockDbList extends React.Component {
     );
   }
 
-  pushData(data: any, synced: any) {
-    const url = format(
-      "https://cloud.posmanager.nl/web20/hook/AddStock?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}",
-      data.barcode,
-      data.quantity,
-      this.state.refNumber,
-      this.state.customerId
-    );
-    axios
-      .get(url)
-      .then(function (response) {
-        console.log(response.data);
-        if (response.data) {
-          db.transaction(
-            (tx) => {
-              tx.executeSql(`delete from items where id = ?;`, [data.id]);
-            },
-            null,
-            synced
-          );
-        } else {
-          Alert.alert(
-            "Problem",
-            "Er is een probleem opgetreden probeer het opnieuw!"
-          );
-        }
-      })
-      .catch(function (error) {
-        Alert.alert(
-          "Problem",
-          "Er is een probleem opgetreden probeer het opnieuw!"
-        );
-        console.log("Error :" + error.response.data);
-      });
-  }
-
-  add(barcode: string, quantity: string, name: string, price: number) {
+  async add(barcode: string, quantity: string, name: string, price: number) {
     if (barcode === null || barcode === "") {
       console.log("barcode or quantity empty");
       return false;
     }
 
-    console.log("add - before transaction");
+    const existingItem = await checkIfBarcodeExists(barcode);
 
-    db.transaction(
-      (tx) => {
-        // Insert query
-        tx.executeSql(
-          "insert into items (barcode, quantity, synced, name, price) values (?,?,?,?,?)",
-          [barcode, quantity, 0, name, price],
-          // Success callback
-          (tx, result) => {
-            console.log("Insert successful", result);
+    if (existingItem) {
+      const confirmed = await confirmAsync(
+        "Bijwerken of toevoegen als nieuw item?",
+        "Om een ​​nieuw item toe te voegen, drukt u op nee, om bij te werken, drukt u op ja"
+      );
 
-            // select
-            tx.executeSql(
-              "select * from items order by id desc",
-              [],
-              // Success callback for select
-              (_, { rows }) => {
-                console.log("Committed");
-                console.log(JSON.stringify(rows));
+      if (confirmed) {
+        // yes to update
+        const updated = await updateItem({
+          barcode,
+          quantity: Number.parseInt(quantity),
+        });
 
-                this.setState({ barcode: "", quantity: "" });
+        console.log(JSON.stringify(updated));
 
-                this.update();
-              },
-              // Error callback for select
-              (tx, er) => {
-                console.log("Error on select items");
-                console.log(er);
-                return false;
-              }
-            );
-          },
-          // Error callback for insert
-          (tx, er) => {
-            console.log("Error on insert");
-            console.log(er);
-            return false;
-          }
-        );
-      },
-      // Transaction error callback
-      (e) => console.log("Transaction error", e),
-      // Optional completion callback for the transaction
-      this.update
-    );
+        this.setState({ barcode: "", quantity: "" });
+        this.update();
+
+        return;
+      }
+    } // end of existingItem
+
+    await insertItem({
+      barcode,
+      quantity: Number.parseInt(quantity),
+      synced: 0,
+      name,
+      price,
+    });
+
+    this.setState({ barcode: "", quantity: "" });
+    this.update();
   }
 
   synced = () => {
@@ -293,33 +267,46 @@ export class StockDbList extends React.Component {
   };
 
   update = () => {
-    this.itms && this.itms.update();
+    this.itmsRef.current && this.itmsRef.current.update();
   };
 
   async syncData() {
-    db.transaction(
-      (tx) => {
-        tx.executeSql(
-          "select * from items order by id asc",
-          [],
-          (_, { rows }) => {
-            for (let i = 0; i < rows._array.length; i++) {
-              let itm = rows._array[i];
-              PushToCloud(
-                itm,
-                this.synced,
-                this.state.refNumber,
-                this.state.customerId
-              );
-              // this.pushData(itm, this.synced);
-            }
-          }
-        );
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
+    const rows = await selectAllItems();
+
+    const semaphore = new Semaphore(4);
+    let succeeded = 0;
+    const succeededLock = new Semaphore(1);
+
+    const taskCreators: Array<() => Promise<void>> = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      let itm = rows[i];
+
+      taskCreators.push(
+        () =>
+          new Promise<void>((resolve) => {
+            console.log(`Task ${itm.barcode}/${i} started`);
+
+            PushToCloud(
+              itm,
+              async () => {
+                await succeededLock.wrap(async () => {
+                  succeeded++;
+                });
+                resolve();
+              },
+              this.state.refNumber,
+              userStore.value.customerId,
+              resolve
+            );
+          })
+      );
+    }
+
+    await Promise.all(taskCreators.map((creator) => semaphore.wrap(creator)));
+
+    this.setState({ succeededCount: succeeded });
+    this.synced();
   }
 }
 

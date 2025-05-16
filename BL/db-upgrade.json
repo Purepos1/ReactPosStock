@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "upgrades": {
     "to_v2": [
       [
@@ -17,9 +17,9 @@
       ["ALTER TABLE items ADD column name text;"],
       ["ALTER TABLE items ADD COLUMN price decimal;"]
     ],
-    "to_v4":[
+    "to_v4": [
       "CREATE TABLE IF NOT EXISTS user (id integer primary key not null,userName text, password text,customerId int,database text);"
-    ]
-    
+    ],
+    "to_v5": ["ALTER TABLE items ADD COLUMN createdDate TEXT;"]
   }
 }

@@ -2,7 +2,6 @@ import { View, StyleSheet } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useState } from "react";
 import * as SQLite from "expo-sqlite";
-import UserDbFunction from "../BL/UserBL";
 import { setUser, clearUser } from "../stores/userStore";
 
 import { Title, Caption } from "react-native-paper";
@@ -69,7 +68,7 @@ export function AppHeader(props: any) {
           setIsLogin(false);
           setLoginName("");
           setDatabase("");
-          console.log("no line");
+          console.log("AppHeader: load user no line");
         }
       });
     },

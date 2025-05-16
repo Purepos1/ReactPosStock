@@ -26,6 +26,13 @@ declare global {
     code: number;
     message: string;
   }
+
+  type User = {
+    userName: string;
+    password: string;
+    customerId: number;
+    database: string;
+  };
 }
 
 export {};
