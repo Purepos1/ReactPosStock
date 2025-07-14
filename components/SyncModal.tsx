@@ -134,9 +134,9 @@ const styles = StyleSheet.create({
     height: 40,
     margin: 15,
     borderColor: "#436BD1",
+    color: "#000000",
     borderWidth: 1,
-    padding: 10,
-    marginBottom: 10,
+    padding: 4,
     justifyContent: "center",
 
     alignItems: "stretch",

@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, TextInput } from "react-native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+import type { BarcodeScanningResult } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Keyboard } from "react-native";
-import * as SQLite from "expo-sqlite";
-import { Alert } from "react-native";
 import { ORANGE, ORANGE_DARK } from "../BL/Colors";
 import { setUser, clearUser } from "../stores/userStore";
+import { getDatabase } from "../Utils/dbService";
 
-const db = SQLite.openDatabase("db.db");
-
-function add(
+async function add(
   userName: string,
   password: string,
   customerId: number,
@@ -33,56 +31,65 @@ function add(
 
   setUser(userName, password, customerId, database);
 
-  db.transaction(
-    (tx) => {
-      tx.executeSql("delete from user");
-      tx.executeSql(
-        "insert into user (userName,password,customerId,database) values (?,?,?,?)",
-        [userName, password, customerId, database]
-      );
-      tx.executeSql("select * from user", [], (_, { rows }) =>
-        console.log(JSON.stringify(rows))
-      );
-    },
-    (err) => {
-      console.log(err);
-    }
-  );
+  try {
+    const db = await getDatabase();
+    // Delete all users
+    await db.runAsync("delete from user");
+
+    // Insert new user
+    await db.runAsync(
+      "insert into user (userName, password, customerId, database) values (?, ?, ?, ?)",
+      [userName, password, customerId, database]
+    );
+
+    // Select all users
+    const results = await db.getAllAsync("select * from user");
+
+    console.log("Login.LoggedinUser : ", JSON.stringify(results));
+  } catch (error) {
+    console.error("Login.add: ", error);
+  }
 }
 
 export function Login(props: any) {
-  const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [id, setId] = useState("");
   const [userName, setUserName] = useState("");
   const [pass, setPass] = useState("");
   const [hideCam, setHideCam] = useState(false);
   const [database, setDatabase] = useState("");
+  const [permission, requestPermission] = useCameraPermissions();
 
   useEffect(() => {
     setId("");
     setUserName("");
     setPass("");
     setDatabase("");
-    (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
+
+    if (!permission?.granted) {
+      requestPermission();
+    }
 
     clearUser();
 
-    db.transaction(
-      (tx) => {
-        console.log("delete table user !!!");
-        tx.executeSql("delete from user");
-      },
-      (err) => {
+    async function deleteUser() {
+      try {
+        console.log("DELETE FROM user !!!");
+
+        const db = await getDatabase();
+
+        db.runAsync("DELETE FROM user;");
+      } catch (err) {
         console.log(err);
       }
-    );
+    }
+
+    deleteUser();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = function ({
+    data,
+  }: Pick<BarcodeScanningResult, "data">) {
     setScanned(true);
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
 
@@ -94,18 +101,13 @@ export function Login(props: any) {
     setDatabase(splitted[3]);
   };
 
-  if (hasPermission === null) {
-    //Requesting for camera permission
-    return <Text>Geef toestemming voor de camera</Text>;
-  }
-  if (hasPermission === false) {
-    //No access to camera
-    return <Text>Geen toestemming voor camera</Text>;
-  }
-
   const focused = () => {
     setHideCam(true);
   };
+
+  if (!permission?.granted) {
+    return <Text>Geen toestemming voor camera</Text>;
+  }
 
   return (
     <View style={styles.container}>
@@ -127,9 +129,12 @@ export function Login(props: any) {
         <Text style={styles.modalInfo}>Scanner instellingen</Text>
       </View>
       {!hideCam && (
-        <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        <CameraView
           style={styles.camera}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barcodeScannerSettings={{
+            barcodeTypes: ["qr", "ean13", "code128", "code39"],
+          }}
         />
       )}
       {/* Tap to Scan Again */}
@@ -203,9 +208,9 @@ export function Login(props: any) {
         <FontAwesome.Button
           name="sign-in"
           backgroundColor={ORANGE}
-          onPress={() => {
+          onPress={async () => {
             console.log("login press called");
-            add(userName, pass, parseInt(id), database);
+            await add(userName, pass, parseInt(id), database);
             props.navigation.goBack();
           }}
         >

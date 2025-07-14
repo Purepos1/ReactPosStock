@@ -69,9 +69,11 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
       return true;
     };
 
-    BackHandler.addEventListener("hardwareBackPress", backAction);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+    return () => subscription.remove();
   }, [onClose]);
 
   return (

@@ -1,56 +1,46 @@
-import * as SQLite from "expo-sqlite";
 import { UserModel } from "../Models/UserModel";
-import { getDBConnection } from "../Helpers/DbHelper";
+import { getDatabase } from "../Utils/dbService";
 import { setUser, clearUser } from "../stores/userStore";
 
-const db = SQLite.openDatabase("db.db");
-
 class UserBL {
-  Delete() {
-    clearUser();
-    db.transaction(
-      (tx) => {
-        tx.executeSql("delete from user");
-        console.log("User deleted");
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-  }
-
-  Create(props: any) {
-    db.transaction(
-      (tx) => {
-        tx.executeSql(
-          "insert into user (userName,password,customerId,database) values (?,?,?,?)",
-          [props.userName, props.password, props.customerId, props.database]
-        );
-        console.log("User " + props.userName + " inserted");
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-  }
-
-  getTodoItems = async (db: SQLiteDatabase): Promise<UserModel[]> => {
+  async Delete(): Promise<void> {
     try {
-      const userItems: UserModel[] = [];
-      const results = await db.executeSql(
-        "select id, userName, password, customerId, database from user"
-      );
-      results.forEach((result) => {
-        for (let index = 0; index < result.rows.length; index++) {
-          userItems.push(result.rows.item(index));
-        }
-      });
-      return userItems;
-    } catch (error) {
-      console.error(error);
-      throw Error("Failed to get userItems !!!");
+      const db = await getDatabase();
+      clearUser();
+      await db.execAsync("DELETE FROM user");
+      console.log("User deleted");
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      throw err;
     }
-  };
+  }
+
+  async Create(user: UserModel): Promise<void> {
+    try {
+      const db = await getDatabase();
+      await db.runAsync(
+        "INSERT INTO user (userName, password, customerId, database) VALUES (?, ?, ?, ?)",
+        [user.userName, user.password, user.customerId, user.database]
+      );
+      console.log(`User ${user.userName} inserted`);
+    } catch (err) {
+      console.error("Error creating user:", err);
+      throw err;
+    }
+  }
+
+  async getUsers(): Promise<UserModel[]> {
+    try {
+      const db = await getDatabase();
+      const results = await db.getAllAsync<UserModel>(
+        "SELECT id, userName, password, customerId, database FROM user"
+      );
+      return results;
+    } catch (error) {
+      console.error("UserBl.getUsers Failed to get users:", error);
+      throw new Error("Failed to get users");
+    }
+  }
 }
 
 const UserDbFunction = new UserBL();

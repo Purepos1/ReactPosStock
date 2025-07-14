@@ -71,6 +71,13 @@ const BarcodeAdd = ({ parentComponent }: Props) => {
   };
 
   const added = (data: any) => {
+    console.log(
+      "Added data: ",
+      barcode,
+      quantity,
+      data.Data.Name,
+      data.Data.Price
+    );
     parentComponent.add(barcode, quantity, data.Data.Name, data.Data.Price);
     txtBarcodeRef.current?.focus();
     setBarcode("");

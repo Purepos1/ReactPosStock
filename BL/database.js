@@ -2,66 +2,61 @@ import dbUpgrade from ".//db-upgrade.json";
 import dbDelete from ".//db-delete.json";
 import * as SQLite from "expo-sqlite";
 
-const db = SQLite.openDatabase("db.db");
-
 export const open = () => {
   console.log("open called");
-  db.transaction((tx) => {
-    tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS version (version integer primary key not NULL);",
-      [],
-      () => {
-        console.log("version Table created or already exists.");
+  const db = SQLite.openDatabaseSync("db.db");
 
-        tx.executeSql(
-          "SELECT version FROM version ORDER BY version DESC LIMIT 1;",
-          [],
-          (trans, results) => {
-            console.log(JSON.stringify(results));
+  try {
+    db.withTransactionSync(() => {
+      db.execSync(`
+      CREATE TABLE IF NOT EXISTS version 
+      (version integer primary key not NULL);
+    `);
+      console.log("version Table created or already exists.");
 
-            let version = 1;
-            if (results.rows._array.length === 0) {
-              console.log("Version table is empty.");
-            } else {
-              version = results.rows._array[0].version;
-              console.log("Version: " + version);
-            }
+      const results = db.getAllSync(`
+      SELECT version FROM version 
+      ORDER BY version DESC LIMIT 1;
+    `);
 
-            if (version < dbUpgrade.version) {
-              upgradeFrom(db, version);
-            }
-          }
-        );
-      },
-      (_, error) => {
-        console.log("Error creating table:", error);
-        return true; // returning true rolls back the transaction
+      let version = 1;
+      if (results.length === 0) {
+        console.log("Version table is empty.!!!");
+      } else {
+        version = results[0].version;
+        console.log("open.Query current Version: " + version);
       }
-    );
-  });
+
+      if (version < dbUpgrade.version) {
+        upgradeFrom(db, version);
+      }
+    });
+  } catch (error) {
+    console.log("Transaction failed:", error);
+  }
 };
 
-const executeQuery = (query, param) => {
+const executeQuery = (db, query, param) => {
   console.log(query);
-  db.transaction((tx) => {
-    tx.executeSql(
-      query,
-      param,
-      (_, { rows }) => {
-        console.log("Success:" + query);
-      },
-      (err) => {
-        console.log("Failed:" + query);
-      }
-    );
-  });
+
+  try {
+    const result = db.execSync(query, param);
+
+    console.log("Success:" + query);
+    console.log("Result:", result);
+  } catch (error) {
+    console.log("Failed:" + query);
+    console.error("Error details:", error);
+  }
 };
 
 export const deleteTables = () => {
   const deletescripts = dbDelete.deleteTables;
 
+  const db = SQLite.openDatabaseSync("db.db");
+
   deletescripts.forEach((element) => {
-    executeQuery(element[0], null);
+    executeQuery(db, element[0], null);
   });
 };
 
@@ -72,8 +67,8 @@ export const upgradeFrom = (db, previousVersion) => {
   let version = dbUpgrade.version - (dbUpgrade.version - previousVersion) + 1;
   let length = Object.keys(dbUpgrade.upgrades).length;
 
-  console.log("version:" + version);
-  console.log("Length:" + length);
+  console.log("current version: " + version);
+
   for (let i = 0; i < length; i += 1) {
     let upgrade = dbUpgrade.upgrades[`to_v${version}`];
 
@@ -84,16 +79,18 @@ export const upgradeFrom = (db, previousVersion) => {
     }
 
     version++;
+
+    console.log("new version:", version);
   }
 
   statements = [
     ...statements,
-    ...[["REPLACE INTO version (version) VALUES (?);", [dbUpgrade.version]]],
+    ...[["REPLACE INTO version (version) VALUES (?);", [version]]],
   ];
 
   statements.forEach((s) => {
     let result = Array.isArray(s);
-    if (result) executeQuery(s[0], s[1]);
-    else executeQuery(s);
+    if (result) executeQuery(db, s[0], s[1]);
+    else executeQuery(db, s);
   });
 };

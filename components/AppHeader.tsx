@@ -1,13 +1,13 @@
 import { View, StyleSheet } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as SQLite from "expo-sqlite";
 import { setUser, clearUser } from "../stores/userStore";
 
 import { Title, Caption } from "react-native-paper";
 import { ORANGE, WHITE_SMOKE } from "../BL/Colors";
-
-const db = SQLite.openDatabase("db.db");
+import { UserModel } from "../Models/UserModel";
+import { getDatabase } from "../Utils/dbService";
 
 export function LoginButton(props: any) {
   return (
@@ -48,34 +48,43 @@ export function AppHeader(props: any) {
   const [isLogin, setIsLogin] = useState(false);
   const [loginName, setLoginName] = useState("");
   const [database, setDatabase] = useState("");
-  db.transaction(
-    (tx) => {
-      tx.executeSql("select * from user", [], (_, { rows }) => {
-        console.log("user info", rows._array);
-        if (rows._array.length > 0) {
-          setUser(
-            rows._array[0].userName,
-            rows._array[0].password,
-            rows._array[0].customerId,
-            rows._array[0].database
-          );
-          console.log(rows._array[0]);
-          setIsLogin(true);
-          setLoginName(rows._array[0].userName);
-          setDatabase(rows._array[0].database);
-        } else {
-          clearUser();
-          setIsLogin(false);
-          setLoginName("");
-          setDatabase("");
-          console.log("AppHeader: load user no line");
-        }
-      });
-    },
-    (err) => {
-      console.log(err);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const db = await getDatabase();
+
+        await loadUserData(db);
+      } catch (err) {
+        console.error("Database initialization error:", err);
+      }
     }
-  );
+
+    loadData();
+  }, []);
+
+  async function loadUserData(db: SQLite.SQLiteDatabase) {
+    try {
+      const results = await db.getAllAsync<UserModel>("SELECT * FROM user;");
+
+      console.log("user info", results);
+      if (results.length > 0) {
+        const { userName, password, customerId, database: dbName } = results[0];
+        setUser(userName, password, customerId, dbName);
+        setIsLogin(true);
+        setLoginName(userName);
+        setDatabase(dbName);
+      } else {
+        clearUser();
+        setIsLogin(false);
+        setLoginName("");
+        setDatabase("");
+        console.log("AppHeader: load user no line");
+      }
+    } catch (err) {
+      console.error("Error loading user data:", err);
+    }
+  }
 
   return (
     <View>

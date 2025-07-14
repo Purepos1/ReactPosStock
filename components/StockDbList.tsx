@@ -23,8 +23,8 @@ import {
   updateItem,
   checkIfBarcodeExists,
   deleteItem,
-  selectUser,
-} from "../Utils/sqlHelper";
+} from "../Services/ItemService";
+import { selectUser } from "../Services/UserService";
 import { confirmAsync } from "../Utils/confirm";
 
 interface ItemsProps {
@@ -249,6 +249,7 @@ export class StockDbList extends React.Component {
       }
     } // end of existingItem
 
+    console.log("parent add is called");
     await insertItem({
       barcode,
       quantity: Number.parseInt(quantity),
@@ -256,7 +257,7 @@ export class StockDbList extends React.Component {
       name,
       price,
     });
-
+    console.log("parent add is called 2");
     this.setState({ barcode: "", quantity: "" });
     this.update();
   }

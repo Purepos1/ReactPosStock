@@ -1,10 +1,7 @@
-import { format } from "react-string-format";
 import axios from "axios";
-import * as SQLite from "expo-sqlite";
 import { Alert } from "react-native";
 import { userStore } from "../stores/userStore";
-
-const db = SQLite.openDatabase("db.db");
+import { getDatabase } from "../Utils/dbService";
 
 export function GetProductInfo(
   customerId: any,
@@ -12,11 +9,7 @@ export function GetProductInfo(
   added: any,
   failedFunc: any
 ) {
-  const url = format(
-    "https://cloud.posmanager.nl/web20/hook/getproductinfo?customerid={0}&barcode={1}",
-    customerId,
-    barcode
-  );
+  const url = `https://cloud.posmanager.nl/web20/hook/getproductinfo?customerid=${customerId}&barcode=${barcode}`;
 
   console.log(url);
 
@@ -54,35 +47,30 @@ export function PushToCloud(
 
   console.log("data", data, date);
 
-  const url = format(
-    "https://cloud.posmanager.nl/web20/hook/addstockv2?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}&createdDate={4}",
-    //"http://192.168.1.187:59387/hook/addstockv2?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}&createdDate={4}",
-    data.barcode,
-    data.quantity,
-    refNumber,
-    customerId,
-    date
-  );
+  const url = `https://cloud.posmanager.nl/web20/hook/addstockv2?customerid=${customerId}&barcode=${data.barcode}&quantity=${data.quantity}&referenceNo=${refNumber}&createdDate=${date}`;
+  //"http://192.168.1.187:59387/hook/addstockv2?customerid={3}&barcode={0}&quantity={1}&referenceNo={2}&createdDate={4}",
+
   axios
     .get(url)
-    .then(function (response) {
-      console.log(response.data);
-      if (response.data) {
-        db.transaction(
-          (tx) => {
-            tx.executeSql(`delete from items where id = ?;`, [data.id]);
-          },
-          undefined, // Pass `undefined` if you don't want to handle the error:
-          synced
-        );
-        console.log(`'id: ${data.id} finished successfully`);
-      } else {
-        // Alert.alert(
-        //   "Problem",
-        //   "Er is een probleem opgetreden probeer het opnieuw!"
-        // );
-        console.log("error", response);
-        resolve && resolve();
+    .then(async function (response) {
+      try {
+        console.log(response.data);
+        if (response.data) {
+          const db = await getDatabase();
+          await db.runAsync(`DELETE FROM items WHERE id = ?;`, [data.id]);
+          console.log(`id: ${data.id} finished successfully`);
+          synced();
+        } else {
+          // Alert.alert(
+          //   "Problem",
+          //   "Er is een probleem opgetreden probeer het opnieuw!"
+          // );
+          console.log("error", response);
+          resolve?.();
+        }
+      } catch (innerError) {
+        console.error("Error in database operation:", innerError);
+        resolve?.();
       }
     })
     .catch(function (error) {
@@ -91,7 +79,7 @@ export function PushToCloud(
       //   "Er is een probleem opgetreden probeer het opnieuw!"
       // );
       console.log("Error :" + error.response.data);
-      resolve && resolve();
+      resolve?.();
     });
 }
 
@@ -104,12 +92,9 @@ export function GetProductSearch(
   console.log(userStore.value.customerId);
   console.log("GetProductSearch barcode:");
   console.log(searchTerm);
-  const url = format(
-    "https://cloud.posmanager.nl/web20/hook/GetProductSearch?customerid={0}&searchTerm={1}",
-    //"http://192.168.1.187:59387/hook/GetProductSearch?customerid={0}&searchTerm={1}",
-    userStore.value.customerId,
-    searchTerm
-  );
+  const url = `https://cloud.posmanager.nl/web20/hook/GetProductSearch?customerid=${userStore.value.customerId}&searchTerm=${searchTerm}`;
+  //"http://192.168.1.187:59387/hook/GetProductSearch?customerid={0}&searchTerm={1}",
+
   console.log(url);
   axios
     .get<PosActionResult<ProductSearchResultDto[]>>(url)

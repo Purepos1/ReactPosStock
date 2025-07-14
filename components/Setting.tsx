@@ -18,7 +18,7 @@ import { BLUE_CLOUD, RED, WHITE } from "../BL/Colors";
 
 const storeKey = "@hideKeyboard_Key";
 
-const storeData = async (value) => {
+const storeData = async (value: any) => {
   try {
     await AsyncStorage.setItem(storeKey, value);
   } catch (e) {
@@ -91,7 +91,7 @@ export function Setting(props: any) {
               props.navigation.navigate("Profile");
             }}
           >
-            <Button mode="outlined"  textColor="#fff" style={styles.buttonStyle}>
+            <Button mode="outlined" textColor="#fff" style={styles.buttonStyle}>
               Delete
             </Button>
           </TouchableOpacity>
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
 
   buttonStyle: {
     backgroundColor: RED,
-    borderColor:WHITE,
-     // text color
+    borderColor: WHITE,
+    // text color
     cursor: "pointer",
   },
 });

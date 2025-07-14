@@ -1,33 +1,48 @@
-import React, { useEffect } from 'react';
-import { View, Text } from 'react-native';
-import * as SQLite from "expo-sqlite";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { getDatabase } from "../Utils/dbService";
 
+interface ColumnInfo {
+  cid: number;
+  name: string;
+  type: string;
+  notnull: number;
+  dflt_value: any;
+  pk: number;
+}
 
 const Columns = () => {
+  const [columns, setColumns] = useState<ColumnInfo[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    const db = SQLite.openDatabase("db.db");
+    const fetchColumns = async () => {
+      try {
+        const db = await getDatabase();
+        const tableName = "items"; // Replace with your table name
 
-    // Replace 'Users' with the name of your table
-    const tableName = 'items';
+        // Get column information using PRAGMA
+        const results = await db.getAllAsync<ColumnInfo>(
+          `PRAGMA table_info(${tableName})`
+        );
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        `PRAGMA table_info(${tableName})`,
-        [],
-        (tx, result) => {
-          const rows = result.rows;
-          if (rows.length > 0) {
-            console.log(`Columns of table '${tableName}':`);
-            for (let i = 0; i < rows.length; i++) {
-              console.log(`- Name: ${rows.item(i).name}, Type: ${rows.item(i).type}`);
-            }
-          } else {
-            console.warn(`Table '${tableName}' not found or has no columns.`);
-          }
-        },
-        null
-      );
-    });
+        if (results.length > 0) {
+          console.log(`Columns of table '${tableName}':`);
+          results.forEach((column) => {
+            console.log(`- Name: ${column.name}, Type: ${column.type}`);
+          });
+          setColumns(results);
+        } else {
+          console.warn(`Table '${tableName}' not found or has no columns.`);
+          setError(`Table '${tableName}' not found or has no columns.`);
+        }
+      } catch (err) {
+        console.error("Error fetching columns:", err);
+        setError("Failed to fetch table columns");
+      }
+    };
+
+    fetchColumns();
   }, []);
 
   return (
