@@ -27,6 +27,8 @@ Stop-Process -Name node, Code, java, javaw -Force
 
 eas build --profile development --platform android
 
+eas build --profile production --platform android
+
 --- daily build
 
 eas build:dev --platform android --device [YOUR_DEVICE_ID]

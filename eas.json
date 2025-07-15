@@ -8,12 +8,19 @@
       "distribution": "internal",
       "cache": {
         "disabled": false
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "preview": {
       "distribution": "internal"
     },
-    "production": {},
+    "production": {
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "development-simulator": {
       "developmentClient": true,
       "distribution": "internal",

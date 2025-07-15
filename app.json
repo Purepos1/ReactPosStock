@@ -15,7 +15,9 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/302864a1-f965-4160-a80b-53015672a39c"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.PurePOS.ReactPosStock"
@@ -34,12 +36,16 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.10",
             "jvmTarget": "17"
           }
         }
       ],
       "expo-sqlite"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "aadf3cd0-90b7-44f2-9fc9-b6fb5bc02033"
+      }
+    }
   }
 }
