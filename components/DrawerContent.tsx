@@ -1,6 +1,6 @@
 import React from "react";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { Avatar, Drawer, Text } from "react-native-paper";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import UserDbFunction from "../BL/UserBL";
@@ -8,12 +8,30 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import IconM from "react-native-vector-icons/MaterialIcons";
 import { AppHeader } from "./AppHeader";
 import { BLUE, GRAY, ORANGE, RED, WHITE, WHITE_SMOKE } from "../BL/Colors";
-import { clearUser } from "../stores/userStore";
+import { clearUser, isLoggedIn } from "../stores/userStore";
 
 function signOut(props: any) {
-  UserDbFunction.Delete();
-  clearUser();
-  props.navigation.navigate("Scanner");
+  Alert.alert(
+    "Afmelden bevestigen",
+    "Weet je zeker dat je wilt uitloggen?",
+    [
+      {
+        text: "Annuleren",
+        style: "cancel",
+      },
+      {
+        text: "Uitloggen",
+        style: "destructive",
+        onPress: () => {
+          UserDbFunction.Delete();
+          clearUser();
+          isLoggedIn();
+          props.navigation.navigate("Scanner");
+        },
+      },
+    ],
+    { cancelable: true }
+  );
 }
 
 export function DrawerContent(props: DrawerContentComponentProps) {
@@ -82,7 +100,7 @@ export function DrawerContent(props: DrawerContentComponentProps) {
           icon={({ color, size }) => (
             <Icon name="exit-to-app" color={color} size={size} />
           )}
-          label="Log out"
+          label="Uitloggen"
           onPress={() => {
             signOut(props);
           }}

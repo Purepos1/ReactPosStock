@@ -13,7 +13,7 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SyncModal } from "./SyncModal";
 import { PushToCloud, GetProductInfo } from "../BL/CloudFunctions";
-import { BLUE, BLUE_CLOUD, ORANGE, ORANGE_DARK } from "../BL/Colors";
+import { BLUE, BLUE_CLOUD, ORANGE } from "../BL/Colors";
 import BarcodeAdd from "./BarcodeAdd";
 import { clearUser, isLoggedIn, setUser, userStore } from "../stores/userStore";
 import { Semaphore } from "../Utils/semaphore";
@@ -79,13 +79,13 @@ class Items extends React.Component<ItemsProps, ItemsState> {
             <View style={styles.itemContainer}>
               <View style={styles.itemTemplate}>
                 <Text style={{ flex: 1, fontSize: 14 }}>{name}</Text>
-                <Text style={{ flex: 1, fontSize: 12, color: ORANGE_DARK }}>
+                <Text style={{ flex: 1, fontSize: 12, color: ORANGE }}>
                   Barcode:{barcode}
                 </Text>
               </View>
               <View style={styles.itemPrice}>
                 <Text style={{ flex: 1, fontSize: 14 }}>{quantity}</Text>
-                <Text style={{ flex: 1, fontSize: 12, color: ORANGE_DARK }}>
+                <Text style={{ flex: 1, fontSize: 12, color: ORANGE }}>
                   {price} €
                 </Text>
               </View>

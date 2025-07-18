@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Text, View, StyleSheet, TextInput, Pressable } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { ORANGE } from "../BL/Colors";
 
 export function SyncModal(props: any) {
   const [refNum, setRefNum] = useState("");
@@ -12,6 +13,16 @@ export function SyncModal(props: any) {
   function onCancel() {
     props.onCancel();
   }
+
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 300); // delay in ms
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.centeredView}>
@@ -48,7 +59,7 @@ export function SyncModal(props: any) {
             </Text>
             <TextInput
               style={styles.input}
-              autoFocus={true}
+              ref={inputRef}
               onChangeText={(ref) => setRefNum(ref)}
             />
             <Pressable
@@ -122,7 +133,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     textAlign: "center",
     fontSize: 12,
-    color: "orange",
+    color: ORANGE,
   },
   totalInfo: {
     marginTop: 10,

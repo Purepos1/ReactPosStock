@@ -4,7 +4,7 @@ import type { BarcodeScanningResult } from "expo-camera";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Keyboard } from "react-native";
-import { ORANGE, ORANGE_DARK } from "../BL/Colors";
+import { ORANGE } from "../BL/Colors";
 import { setUser, clearUser } from "../stores/userStore";
 import { getDatabase } from "../Utils/dbService";
 
@@ -207,6 +207,7 @@ export function Login(props: any) {
       <View>
         <FontAwesome.Button
           name="sign-in"
+          size={24}
           backgroundColor={ORANGE}
           onPress={async () => {
             console.log("login press called");
@@ -279,6 +280,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     textAlign: "center",
     fontSize: 12,
-    color: ORANGE_DARK,
+    color: ORANGE,
   },
 });

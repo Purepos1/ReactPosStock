@@ -1,21 +1,26 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, SafeAreaView, Text, View, Button } from "react-native";
-import { StockDbList } from "./components/StockDbList";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useState, useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { Login } from "./components/Login";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Setting } from "./components/Setting";
-import { DrawerContent } from "./components/DrawerContent";
-import { open } from "./BL/database";
-import { BLUE } from "./BL/Colors";
-import LogoTitle from "./components/LogoTitle";
 import NetInfo from "@react-native-community/netinfo";
-import { updateConnectionStatus } from "./stores/connectionStore";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { NavigationContainer } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { createStackNavigator } from "@react-navigation/stack";
+import { useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { LogBox } from "react-native";
+import {
+  Button,
+  LogBox,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { BLUE, WHITE } from "./BL/Colors";
+import { open } from "./BL/database";
+import { DrawerContent } from "./components/DrawerContent";
+import { HomeScreen } from "./components/Home";
+import { Login } from "./components/Login";
+import LogoTitle from "./components/LogoTitle";
+import { Setting } from "./components/Setting";
+import { updateConnectionStatus } from "./stores/connectionStore";
 
 // Ignore specific warnings if needed
 LogBox.ignoreLogs([
@@ -30,6 +35,7 @@ type RootStackParamList = {
   Profile: undefined;
   Setting: undefined;
 };
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 // Error Fallback Component
@@ -50,24 +56,6 @@ function ErrorFallback({
     </SafeAreaView>
   );
 }
-
-const HomeScreen = ({ navigation }: { navigation: NavigationProp }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [barcode, setBarcode] = useState("");
-  const [qty, setQty] = useState(0);
-
-  const showModal = (args: string) => {
-    setModalVisible(true);
-    setBarcode(args);
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <StockDbList />
-      <StatusBar style="auto" />
-    </SafeAreaView>
-  );
-};
 
 export default function App() {
   useEffect(() => {
@@ -117,8 +105,7 @@ export default function App() {
             component={HomeScreen}
             options={{
               headerTitle: () => <LogoTitle title="Home" isLogin="false" />,
-              headerStyle: { backgroundColor: BLUE },
-              headerTintColor: "#fff",
+              headerTintColor: WHITE,
             }}
           />
 
@@ -128,7 +115,7 @@ export default function App() {
             options={{
               headerTitle: () => <LogoTitle title="Profile" isLogin="true" />,
               headerStyle: { backgroundColor: BLUE },
-              headerTintColor: "#fff",
+              headerTintColor: WHITE,
             }}
           />
 
@@ -138,7 +125,7 @@ export default function App() {
             options={{
               headerTitle: () => <LogoTitle title="Settings" isLogin="true" />,
               headerStyle: { backgroundColor: BLUE },
-              headerTintColor: "#fff",
+              headerTintColor: WHITE,
             }}
           />
         </Drawer.Navigator>

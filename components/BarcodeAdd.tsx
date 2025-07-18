@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Text,
   Alert,
 } from "react-native";
 import { BLUE } from "../BL/Colors";
@@ -174,7 +175,7 @@ const BarcodeAdd = ({ parentComponent }: Props) => {
               justifyContent: "center",
             }}
           >
-            <FontAwesome name="filter" size={24} color="white" />
+            <FontAwesome name="search" size={24} color="white" />
           </TouchableOpacity>
         </View>
 
@@ -207,10 +208,12 @@ const BarcodeAdd = ({ parentComponent }: Props) => {
               justifyContent: "center",
             }}
           >
-            <FontAwesome name="long-arrow-right" size={24} color="white">
-              {" "}
-              Opslaan
-            </FontAwesome>
+            <View
+              style={{ flexDirection: "row-reverse", alignItems: "center" }}
+            >
+              <FontAwesome name="save" size={24} color="white" />
+              <Text style={{ color: "white", marginRight: 8 }}>Opslaan</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -227,6 +230,7 @@ const BarcodeAdd = ({ parentComponent }: Props) => {
 
             if (selectedProduct) {
               setBarcode(selectedProduct.barcode);
+              txtQuantityRef.current?.focus();
             }
           }}
         />

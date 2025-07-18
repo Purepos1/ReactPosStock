@@ -1,34 +1,27 @@
-import { View, StyleSheet } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useState, useEffect } from "react";
 import * as SQLite from "expo-sqlite";
-import { setUser, clearUser } from "../stores/userStore";
-
-import { Title, Caption } from "react-native-paper";
-import { ORANGE, WHITE_SMOKE } from "../BL/Colors";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
+import { GRAY_LIGHT, ORANGE, WHITE_SMOKE } from "../BL/Colors";
 import { UserModel } from "../Models/UserModel";
 import { getDatabase } from "../Utils/dbService";
+import { clearUser, isLoggedIn, setUser, userStore } from "../stores/userStore";
 
 export function LoginButton(props: any) {
   return (
-    <View
-      style={{
-        marginLeft: 15,
-        marginTop: 7,
-        height: 35,
-        flexDirection: "column",
-      }}
-    >
+    <View style={styles.loginLogout}>
       <FontAwesome.Button
         name="sign-in"
         style={{ paddingHorizontal: 15 }}
         backgroundColor={ORANGE}
+        size={24}
         onPress={() => {
           console.log("login press called");
           props.navigation.navigate("Profile");
         }}
       >
-        Login
+        Inloggen
       </FontAwesome.Button>
     </View>
   );
@@ -37,9 +30,13 @@ export function LoginButton(props: any) {
 export function LogoutButton(props: any) {
   const [loginName, setLoginName] = useState("");
   return (
-    <View style={{ marginTop: 3, marginLeft: 12, flexDirection: "column" }}>
-      <Title style={styles.title}>Hello {props.name}!</Title>
-      <Caption style={styles.caption}>{props.database}</Caption>
+    <View style={styles.loginLogout}>
+      <Text variant="titleMedium" style={{ color: WHITE_SMOKE }}>
+        Hallo {props.name}!
+      </Text>
+      <Text variant="labelMedium" style={{ color: GRAY_LIGHT }}>
+        {props.database}
+      </Text>
     </View>
   );
 }
@@ -53,7 +50,6 @@ export function AppHeader(props: any) {
     async function loadData() {
       try {
         const db = await getDatabase();
-
         await loadUserData(db);
       } catch (err) {
         console.error("Database initialization error:", err);
@@ -88,13 +84,13 @@ export function AppHeader(props: any) {
 
   return (
     <View>
-      {isLogin == false ? (
+      {isLoggedIn() == false ? (
         <LoginButton navigation={props.component} />
       ) : (
         <LogoutButton
           navigation={props.component}
-          name={loginName}
-          database={database}
+          name={userStore.value.userName}
+          database={userStore.value.database}
         />
       )}
     </View>
@@ -102,14 +98,8 @@ export function AppHeader(props: any) {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 16,
-    marginTop: 3,
-    fontWeight: "bold",
-    color: WHITE_SMOKE,
-  },
-  caption: {
-    fontSize: 14,
-    lineHeight: 14,
+  loginLogout: {
+    flexDirection: "column",
+    marginLeft: 15,
   },
 });

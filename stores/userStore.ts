@@ -1,4 +1,5 @@
-import { signal } from "@preact/signals-react";
+import { signal,computed } from "@preact/signals-react";
+
 
 export const userStore = signal<User>({
   userName: "",
@@ -28,6 +29,7 @@ export const clearUser = () => {
     customerId: 0,
     database: "",
   };
+  
 };
 
 export const isLoggedIn = (): boolean => {
@@ -35,3 +37,8 @@ export const isLoggedIn = (): boolean => {
 
   return !!(userName && password && customerId && database);
 };
+
+export const isLoggedInReactive = computed(() => {
+  const { userName, password, customerId, database } = userStore.value;
+  return !!(userName && password && customerId && database);
+});

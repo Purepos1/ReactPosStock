@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   Alert,
+  Keyboard,
 } from "react-native";
 import { GetProductSearch } from "../BL/CloudFunctions";
 import { StockDbList } from "./StockDbList";
@@ -22,6 +23,7 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const searchInputRef = useRef<TextInput>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) {
@@ -48,6 +50,9 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
         setSelectedProduct(null);
       }
     );
+
+    Keyboard.dismiss(); // hide keyboard
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true }); // scroll to top
   };
 
   const handleSelectProduct = (product: Product) => {
@@ -64,6 +69,10 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
   };
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 300); // 300ms delay helps avoid transition issues
+
     const backAction = () => {
       onClose(null);
       return true;
@@ -73,6 +82,7 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
       "hardwareBackPress",
       backAction
     );
+    () => clearTimeout(timer);
     return () => subscription.remove();
   }, [onClose]);
 
@@ -87,7 +97,6 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
-          autoFocus
           returnKeyType="search"
         />
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
@@ -104,6 +113,7 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
           </View>
 
           <FlatList
+            ref={flatListRef}
             data={products}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (

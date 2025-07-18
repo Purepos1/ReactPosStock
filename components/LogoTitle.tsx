@@ -21,43 +21,7 @@ const LogoTitle = (props: any) => {
   return (
     <View style={styles.titleContainer}>
       <View style={styles.title}>
-        <IconM
-          style={{ marginRight: 5, marginTop: 3 }}
-          name="circle"
-          size={2}
-          color={color}
-        />
-        <IconM
-          style={{ marginRight: 5, marginTop: 3 }}
-          name="circle"
-          size={4}
-          color={color}
-        />
-        <IconM
-          style={{ marginRight: 5, marginTop: 3 }}
-          name="circle"
-          size={6}
-          color={color}
-        />
         <Text style={{ color: WHITE, fontSize: 20 }}>{props.title}</Text>
-        <IconM
-          style={{ marginLeft: 5, marginTop: 3 }}
-          name="circle"
-          size={6}
-          color={color}
-        />
-        <IconM
-          style={{ marginLeft: 5, marginTop: 3 }}
-          name="circle"
-          size={4}
-          color={color}
-        />
-        <IconM
-          style={{ marginLeft: 5, marginTop: 3 }}
-          name="circle"
-          size={2}
-          color={color}
-        />
       </View>
       <Text
         style={{
@@ -68,8 +32,8 @@ const LogoTitle = (props: any) => {
         {connectionStatus.value.isConnected === null
           ? "..."
           : connectionStatus.value.isConnected
-          ? "" //`(${connectionStatus.value.type}) 🟢`
-          : "●ex"}
+            ? "" //`(${connectionStatus.value.type}) 🟢`
+            : "●ex"}
       </Text>
     </View>
   );

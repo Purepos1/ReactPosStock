@@ -88,8 +88,10 @@ export function GetProductSearch(
   resultFetched: any,
   failedFunc: any
 ) {
-  console.log("GetProductSearch CustomerUd:");
+  console.log("GetProductSearch CustomerId:");
   console.log(userStore.value.customerId);
+  console.log("GetProductSearch UserName:");
+  console.log(userStore.value.userName);
   console.log("GetProductSearch barcode:");
   console.log(searchTerm);
   const url = `https://cloud.posmanager.nl/web20/hook/GetProductSearch?customerid=${userStore.value.customerId}&searchTerm=${searchTerm}`;
