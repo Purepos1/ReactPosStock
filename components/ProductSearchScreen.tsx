@@ -12,14 +12,17 @@ import {
 import { GetProductSearch } from "../BL/CloudFunctions";
 import { StockDbList } from "./StockDbList";
 import { BackHandler } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { BLUE, GRAY, WHITE } from "../BL/Colors";
 
 type Props = {
   parentComponent: StockDbList;
   onClose: (selectedProduct: Product | null) => void;
+  barcode: string;
 };
 
-const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
-  const [searchQuery, setSearchQuery] = useState("");
+const ProductSearchScreen = ({ parentComponent, onClose, barcode }: Props) => {
+  const [searchQuery, setSearchQuery] = useState(barcode || "");
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const searchInputRef = useRef<TextInput>(null);
@@ -71,6 +74,10 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       searchInputRef.current?.focus();
+
+      if (searchQuery.trim()) {
+        handleSearch();
+      }
     }, 300); // 300ms delay helps avoid transition issues
 
     const backAction = () => {
@@ -100,7 +107,18 @@ const ProductSearchScreen = ({ parentComponent, onClose }: Props) => {
           returnKeyType="search"
         />
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-          <Text style={styles.searchButtonText}>Zoeken</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 15,
+            }}
+          >
+            <FontAwesome name="search" size={24} color="white" />
+            <Text style={[styles.searchButtonText, { marginLeft: 8 }]}>
+              Zoeken
+            </Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -171,22 +189,22 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: GRAY,
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: "white",
+    backgroundColor: WHITE,
     marginRight: 8,
   },
   searchButton: {
-    width: 80,
     height: 50,
-    backgroundColor: "#007bff",
+    backgroundColor: BLUE,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    flexDirection: "column",
   },
   searchButtonText: {
-    color: "white",
+    color: WHITE,
     fontWeight: "bold",
   },
   resultsHeader: {
