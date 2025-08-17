@@ -1,65 +1,17 @@
---> Standard Expo Go
-Remove-Item -Recurse -Force android, node_modules, package-lock.json
-Remove-Item -Recurse -Force node_modules
-
-npm install
+-- new build
 
 npx expo run:android
 
--- metro server cache clear
-expo start -c
-
--- expo doctor
-npx expo-doctor
-
---- stop all
-Stop-Process -Name node, Code, java, javaw -Force
-
----
-
----
-
----
-
----
-
---- full new build
-
-eas build --profile development --platform android
-
-eas build --profile production --platform android
-
---- daily build
-
-eas build:dev --platform android --device [YOUR_DEVICE_ID]
-eas build:dev --platform android --device RF8R40J4TDH
-
----
+-- clear cahce and start again
 
 npx expo start --clear
 press a
 
------- list devices
+------ some commands
 
 adb devices
 
------- list LATEST and download
-
-eas build:list --limit 1
-
-cd android && ./gradlew clean && cd ..
-
-eas build:download -p android --output=app.apk
-
------- install it to device
-
 Android: adb install app.apk
-
------- start server
-
-expo start --dev-client -> deprecated
-
-npx expo start --dev-client
 
 --- clear all caches -reinstall npm packages and run android
 
