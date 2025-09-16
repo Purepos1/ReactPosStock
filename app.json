@@ -2,7 +2,7 @@
   "expo": {
     "name": "PureSCAN",
     "slug": "ReactPosStock",
-    "version": "1.1.4",
+    "version": "1.1.7",
     "orientation": "portrait",
     "jsEngine": "jsc",
     "icon": "./assets/images/1024.png",
@@ -46,6 +46,9 @@
       "eas": {
         "projectId": "302864a1-f965-4160-a80b-53015672a39c"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
